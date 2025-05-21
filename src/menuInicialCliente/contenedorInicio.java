@@ -65,14 +65,19 @@ public class contenedorInicio extends JFrame {
 		barraLateralMenu.setBounds(0, 0, 199, 817);
 		contentPane.add(barraLateralMenu);
 		barraLateralMenu.setLayout(null);
-		
+	
 		JLabel labelImgUser = new JLabel("");
 		labelImgUser.setHorizontalAlignment(SwingConstants.CENTER);
 		labelImgUser.setBounds(62, 50, 75, 87);
 		funciones.cargarImagenEnLabel(labelImgUser, "/menuInicialCliente/img_cliente/user.png", 75, 87);
 		barraLateralMenu.add(labelImgUser);
 		
-		JLabel irInicio = new JLabel("Inicio");
+		
+		JLabel irInicio = new JLabel("Inicio", SwingConstants.CENTER);
+		JLabel iconoLabelInicio = new JLabel();
+		funciones.cargarImagenEnLabel(iconoLabelInicio, "/menuInicialCliente/img_cliente/home.png", 20, 20);
+		irInicio.setIcon(iconoLabelInicio.getIcon());
+		irInicio.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irInicio.setOpaque(true); // NECESARIO
 		irInicio.setBackground(new Color(255, 255, 255)); // color base
 		irInicio.addMouseListener(new MouseAdapter() {
@@ -90,10 +95,16 @@ public class contenedorInicio extends JFrame {
 		});
 		irInicio.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irInicio.setHorizontalAlignment(SwingConstants.CENTER);
-		irInicio.setBounds(0, 257, 199, 41);
+		irInicio.setBounds(0, 257, 199, 51);
 		barraLateralMenu.add(irInicio);
 		
-		JLabel irMnatenimientos = new JLabel("Mantenimientos");
+		
+		
+		JLabel irMnatenimientos = new JLabel("Mantenimientos", SwingConstants.CENTER);
+		JLabel iconoLabelMantenimientos = new JLabel();
+		funciones.cargarImagenEnLabel(iconoLabelMantenimientos, "/menuInicialCliente/img_cliente/tools.png", 20, 20);
+		irMnatenimientos.setIcon(iconoLabelMantenimientos.getIcon());
+		irMnatenimientos.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irMnatenimientos.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irMnatenimientos.setHorizontalAlignment(SwingConstants.CENTER);
 		irMnatenimientos.setOpaque(true); // NECESARIO
@@ -111,10 +122,14 @@ public class contenedorInicio extends JFrame {
 				irMnatenimientos.setBackground(new Color(255, 255, 255)); // vuelve al base
 		    }
 		});
-		irMnatenimientos.setBounds(0, 333, 199, 41);
+		irMnatenimientos.setBounds(0, 333, 199, 51);
 		barraLateralMenu.add(irMnatenimientos);
 		
-		JLabel irInventario = new JLabel("Inventario");
+		JLabel irInventario = new JLabel("Inventario", SwingConstants.CENTER);
+		JLabel iconoLabelInventario = new JLabel();
+		funciones.cargarImagenEnLabel(iconoLabelInventario, "/menuInicialCliente/img_cliente/invent.png", 30, 30);
+		irInventario.setIcon(iconoLabelInventario.getIcon());
+		irInventario.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irInventario.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irInventario.setHorizontalAlignment(SwingConstants.CENTER);
 		irInventario.setOpaque(true); // NECESARIO
@@ -132,13 +147,18 @@ public class contenedorInicio extends JFrame {
 		    	irInventario.setBackground(new Color(255, 255, 255)); // vuelve al base
 		    }
 		});
-		irInventario.setBounds(0, 408, 199, 41);
+		irInventario.setBounds(0, 408, 199, 51);
 		barraLateralMenu.add(irInventario);
 		
-		JLabel irTrabajos = new JLabel("Control de Trabajos");
+		JLabel irTrabajos = new JLabel("Control de Trabajos", SwingConstants.CENTER);
+		JLabel iconoLabelTrabajos = new JLabel();
+		funciones.cargarImagenEnLabel(iconoLabelTrabajos, "/menuInicialCliente/img_cliente/work.png", 25, 25);
+		irTrabajos.setIcon(iconoLabelTrabajos.getIcon());
+		irTrabajos.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irTrabajos.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irTrabajos.setHorizontalAlignment(SwingConstants.CENTER);
 		irTrabajos.setOpaque(true); // NECESARIO
+		
 		irTrabajos.setBackground(new Color(255, 255, 255)); // color base
 		irTrabajos.addMouseListener(new MouseAdapter() {
 			@Override
@@ -153,7 +173,7 @@ public class contenedorInicio extends JFrame {
 		    	irTrabajos.setBackground(new Color(255, 255, 255)); // vuelve al base
 		    }
 		});
-		irTrabajos.setBounds(0, 479, 199, 41);
+		irTrabajos.setBounds(0, 479, 199, 51);
 		barraLateralMenu.add(irTrabajos);
 		
 		JLabel labelNombreUser = new JLabel("Valerie Zharmel");
@@ -167,6 +187,33 @@ public class contenedorInicio extends JFrame {
 		labelApellidoUser.setFont(new Font("Franklin Gothic Book", Font.BOLD, 16));
 		labelApellidoUser.setBounds(0, 178, 199, 41);
 		barraLateralMenu.add(labelApellidoUser);
+		
+		JLabel irCuenta = new JLabel("Mi cuenta");
+		irCuenta.setOpaque(true);
+		irCuenta.setHorizontalAlignment(SwingConstants.CENTER);
+		irCuenta.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
+		irCuenta.setBackground(new Color(255, 255, 255)); // color base
+		irCuenta.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+			@Override
+		    public void mouseEntered(MouseEvent e) {
+				irCuenta.setBackground(new Color(255, 180, 100)); // color hover más claro
+		    }
+		    @Override
+		    public void mouseExited(MouseEvent e) {
+		    	irCuenta.setBackground(new Color(255, 255, 255)); // vuelve al base
+		    }
+		});
+		irCuenta.setBackground(Color.WHITE);
+		irCuenta.setBounds(0, 741, 199, 41);
+		barraLateralMenu.add(irCuenta);
+		
+		JLabel labelImgLogo = new JLabel("");
+		labelImgLogo.setBounds(21, 611, 162, 129);
+		funciones.cargarImagenEnLabel(labelImgLogo, "../img_login/loga_empresa.jpg", 162, 129);
+		barraLateralMenu.add(labelImgLogo);
 		
 		JPanel menuHorizontal = new JPanel();
 		menuHorizontal.setBackground(new Color(255, 128, 64));
@@ -266,12 +313,10 @@ public class contenedorInicio extends JFrame {
 		contentPane.add(ContenedorCardLayout);
 		ContenedorCardLayout.setLayout(new CardLayout(0, 0));
 		
-		JLabel lblNewLabel = new JLabel("BIENVENIDO ADMINISTRADOR");
-		lblNewLabel.setFont(new Font("Franklin Gothic Demi Cond", Font.PLAIN, 30));
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		ContenedorCardLayout.add(lblNewLabel, "name_12516905000400");
-		
-		
-		
+		JLabel labelBienvenida = new JLabel("BIENVENIDO ADMINISTRADOR");
+		labelBienvenida.setFont(new Font("Franklin Gothic Demi Cond", Font.PLAIN, 30));
+		labelBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
+		ContenedorCardLayout.add(labelBienvenida, "name_12516905000400");
+
 	}
 }

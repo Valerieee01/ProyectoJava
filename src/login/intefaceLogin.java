@@ -152,7 +152,7 @@ public class intefaceLogin extends JFrame {
 		btnIrRegistro.addActionListener(e ->{
 			conectarFrames.AbrirFrameSingin(this);
 		});
-			
+		
 		btnIrRegistro.setForeground(new Color(255, 255, 255));
 		btnIrRegistro.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnIrRegistro.setBackground(new Color(255, 128, 0));
@@ -162,24 +162,28 @@ public class intefaceLogin extends JFrame {
 		JLabel labelInstagram = new JLabel("");
 		labelInstagram.setBounds(398, 671, 30, 30);
 		contentPane.add(labelInstagram);
+		funciones.irNavegador(labelInstagram, "https://www.instagram.com/tata__accesorios/");
 		funciones.cargarImagenEnLabel(labelInstagram, "/img_login/insta.png", 30, 30);
 
 		
 		JLabel labelFacebook = new JLabel("");
 		labelFacebook.setBounds(470, 671, 30, 30);
 		contentPane.add(labelFacebook);
+		funciones.irNavegador(labelFacebook, "https://www.facebook.com/facebook/");
 		funciones.cargarImagenEnLabel(labelFacebook, "/img_login/facebook.png", 30, 30);
 
 		
 		JLabel labelGoogle = new JLabel("");
 		labelGoogle.setBounds(553, 671, 30, 30);
 		contentPane.add(labelGoogle);
+		funciones.irNavegador(labelGoogle, "https://mail.google.com");
 		funciones.cargarImagenEnLabel(labelGoogle, "/img_login/chorme.png", 30, 30);
 
 		
 		JLabel labelGithub = new JLabel("");
 		labelGithub.setBounds(623, 671, 30, 30);
 		contentPane.add(labelGithub);
+		funciones.irNavegador(labelGithub, "https://github.com/Valerieee01");
 		funciones.cargarImagenEnLabel(labelGithub, "/img_login/git.png", 30, 30);
 		
 

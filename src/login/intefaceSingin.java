@@ -287,21 +287,25 @@ public class intefaceSingin extends JFrame {
 		
 		JLabel labelInstagram = new JLabel("");
 		labelInstagram.setBounds(372, 694, 30, 30);
+		funciones.irNavegador(labelInstagram, "https://www.instagram.com/tata__accesorios/");
 		funciones.cargarImagenEnLabel(labelInstagram,  "/img_login/insta.png", 30, 30);
 		contentPaneRegister.add(labelInstagram);
 		
 		JLabel labelFacebook = new JLabel("");
 		labelFacebook.setBounds(461, 694, 30, 30);
+		funciones.irNavegador(labelFacebook, "https://www.facebook.com/facebook/");
 		funciones.cargarImagenEnLabel(labelFacebook, "/img_login/facebook.png", 30, 30);
 		contentPaneRegister.add(labelFacebook);
 		
 		JLabel labelGoogle = new JLabel("");
 		labelGoogle.setBounds(555, 694, 30, 30);
+		funciones.irNavegador(labelGoogle, "https://mail.google.com");
 		funciones.cargarImagenEnLabel(labelGoogle,"/img_login/chorme.png", 30, 30);
 		contentPaneRegister.add(labelGoogle);
 		
 		JLabel labelGithub = new JLabel("");
 		labelGithub.setBounds(634, 694, 30, 30);
+		funciones.irNavegador(labelGithub, "https://github.com/Valerieee01");
 		funciones.cargarImagenEnLabel(labelGithub, "/img_login/git.png", 30, 30);
 		contentPaneRegister.add(labelGithub);
 		

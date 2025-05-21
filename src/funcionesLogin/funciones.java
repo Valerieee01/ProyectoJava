@@ -2,9 +2,13 @@
 package funcionesLogin;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -72,7 +76,18 @@ public class funciones {
 	    label.setIcon(iconoEscalado);
 	}
 
+	public static void irNavegador(JLabel lblLink, String url) {
 
+		lblLink.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent e) {
+		        try {
+		            Desktop.getDesktop().browse(new URI(url));
+		        } catch (Exception ex) {
+		            ex.printStackTrace();
+		        }
+		    }
+		});
 
+	}
 
 }

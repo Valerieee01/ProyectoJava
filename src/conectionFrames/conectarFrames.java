@@ -1,8 +1,11 @@
-package login;
+package conectionFrames;
 
 import java.awt.Frame;
 
 import javax.swing.JFrame;
+
+import login.intefaceLogin;
+import login.intefaceSingin;
 
 public class conectarFrames {
 

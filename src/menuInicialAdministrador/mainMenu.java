@@ -1,4 +1,4 @@
-package menuInicialCliente;
+package menuInicialAdministrador;
 
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;

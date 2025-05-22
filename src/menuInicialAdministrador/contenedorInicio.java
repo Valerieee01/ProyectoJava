@@ -1,4 +1,4 @@
-package menuInicialCliente;
+package menuInicialAdministrador;
 
 /*
  *Importar Clases 
@@ -16,13 +16,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import java.awt.AlphaComposite;
 import java.awt.CardLayout;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -158,7 +155,6 @@ public class contenedorInicio extends JFrame {
 		irTrabajos.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irTrabajos.setHorizontalAlignment(SwingConstants.CENTER);
 		irTrabajos.setOpaque(true); // NECESARIO
-		
 		irTrabajos.setBackground(new Color(255, 255, 255)); // color base
 		irTrabajos.addMouseListener(new MouseAdapter() {
 			@Override

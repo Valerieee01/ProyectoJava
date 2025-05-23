@@ -28,6 +28,8 @@ public class contenedorInicio extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+    private Color naranjaPastel = new Color(0xFF, 0xE5, 0xCC);
+    private CardLayout cardLayout;
 
 	/**
 	 * Launch the application.
@@ -57,29 +59,66 @@ public class contenedorInicio extends JFrame {
 		contentPane.setLayout(null);
 		setLocationRelativeTo(null);
 		
+		//Inicializamos el CardLayout
+		cardLayout = new CardLayout();
+		
+		// Creamos el panel contenedor de layouts
+		JPanel ContenedorCardLayout = new JPanel();
+		ContenedorCardLayout.setLayout(cardLayout);
+		ContenedorCardLayout.setBounds(199, 61, 820, 756);
+		contentPane.add(ContenedorCardLayout);
+		ContenedorCardLayout.setBackground(naranjaPastel);
+		
+		
+		JLabel labelBienvenida = new JLabel("BIENVENIDO ADMINISTRADOR");
+		labelBienvenida.setFont(new Font("Franklin Gothic Demi Cond", Font.PLAIN, 30));
+		labelBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
+		ContenedorCardLayout.add(labelBienvenida, "name_12516905000400");
+		
+		
+		//Intancviamos los paneles que se desean agregar al contenedor
+		paneInicioAdmi paneInicioAdmin = new paneInicioAdmi();
+		panelMantenimientos paneMantenimientos = new panelMantenimientos();
+		panelTrabajo paneTrabajos = new panelTrabajo();
+
+		
+		
+		// agregamos los paneles al contenedor
+		ContenedorCardLayout.add(paneInicioAdmin, "paneInicioAdmin");
+		ContenedorCardLayout.add(paneMantenimientos, "paneMantenimientos");
+		ContenedorCardLayout.add(paneTrabajos, "paneTrabajos");
+
+
+		
+		
+		
+		
+		//creamos el menu lateral 
 		JPanel barraLateralMenu = new JPanel();
 		barraLateralMenu.setBackground(new Color(255, 255, 255));
 		barraLateralMenu.setBounds(0, 0, 199, 817);
 		contentPane.add(barraLateralMenu);
 		barraLateralMenu.setLayout(null);
 	
+		//label para imagen de usuario
 		JLabel labelImgUser = new JLabel("");
 		labelImgUser.setHorizontalAlignment(SwingConstants.CENTER);
 		labelImgUser.setBounds(62, 50, 75, 87);
-		funciones.cargarImagenEnLabel(labelImgUser, "/menuInicialCliente/img_cliente/user.png", 75, 87);
+		funciones.cargarImagenEnLabel(labelImgUser, "/menuInicialCliente/img_cliente/user.png", 75, 87); // Llamamos a la función de agregar imagenes al label
 		barraLateralMenu.add(labelImgUser);
 		
-		
+		//label para ir al inicio
 		JLabel irInicio = new JLabel("Inicio", SwingConstants.CENTER);
 		JLabel iconoLabelInicio = new JLabel();
-		funciones.cargarImagenEnLabel(iconoLabelInicio, "/menuInicialCliente/img_cliente/home.png", 20, 20);
-		irInicio.setIcon(iconoLabelInicio.getIcon());
+		funciones.cargarImagenEnLabel(iconoLabelInicio, "/menuInicialCliente/img_cliente/home.png", 20, 20);// carga la imagen 
+		irInicio.setIcon(iconoLabelInicio.getIcon()); // se le asigna un icono 
 		irInicio.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irInicio.setOpaque(true); // NECESARIO
 		irInicio.setBackground(new Color(255, 255, 255)); // color base
 		irInicio.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneInicioAdmin");
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
@@ -109,6 +148,7 @@ public class contenedorInicio extends JFrame {
 		irMnatenimientos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneMantenimientos");
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
@@ -159,6 +199,8 @@ public class contenedorInicio extends JFrame {
 		irTrabajos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneTrabajos");
+
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
@@ -303,16 +345,6 @@ public class contenedorInicio extends JFrame {
 		});
 		irEquipos.setBounds(468, 11, 133, 41);
 		menuHorizontal.add(irEquipos);
-		
-		JPanel ContenedorCardLayout = new JPanel();
-		ContenedorCardLayout.setBounds(199, 61, 820, 756);
-		contentPane.add(ContenedorCardLayout);
-		ContenedorCardLayout.setLayout(new CardLayout(0, 0));
-		
-		JLabel labelBienvenida = new JLabel("BIENVENIDO ADMINISTRADOR");
-		labelBienvenida.setFont(new Font("Franklin Gothic Demi Cond", Font.PLAIN, 30));
-		labelBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
-		ContenedorCardLayout.add(labelBienvenida, "name_12516905000400");
 
 	}
 }

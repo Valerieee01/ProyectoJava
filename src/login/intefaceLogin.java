@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
+import classBorder.BordeRedondeado;
 import conectionFrames.conectarFrames;
 
 import java.awt.Color;

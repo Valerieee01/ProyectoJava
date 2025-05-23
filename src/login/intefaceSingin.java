@@ -15,6 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+
+import classBorder.BordeRedondeado;
+
 import java.awt.Color;
 import javax.swing.JLabel;
 import java.awt.Font;

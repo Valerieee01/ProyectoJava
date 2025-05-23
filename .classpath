@@ -6,5 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry excluding="login/img_login/|login/img_login/|login/images/" kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/zharm/Downloads/jcalendar-1.4/lib/jcalendar-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

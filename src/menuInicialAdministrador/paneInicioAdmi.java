@@ -56,7 +56,7 @@ public class paneInicioAdmi extends JPanel {
 		btnIrInventario.setBounds(23, 188, 116, 23);
 		panelInventario.add(btnIrInventario);
 		
-		JLabel labelimgInventario = new JLabel("New label");
+		JLabel labelimgInventario = new JLabel("");
 		labelimgInventario.setBounds(37, 40, 89, 85);
 		funciones.cargarImagenEnLabel(labelimgInventario, "/imgAdministrador/inventario.png", 89, 85);
 		panelInventario.add(labelimgInventario);
@@ -90,7 +90,7 @@ public class paneInicioAdmi extends JPanel {
 		btnIrReportes.setBounds(24, 190, 114, 23);
 		panelReportes.add(btnIrReportes);
 		
-		JLabel labelimgReportes = new JLabel("New label");
+		JLabel labelimgReportes = new JLabel("");
 		labelimgReportes.setBounds(37, 33, 89, 85);
 		funciones.cargarImagenEnLabel(labelimgReportes, "/imgAdministrador/reportes.png", 89, 85);
 		panelReportes.add(labelimgReportes);
@@ -101,7 +101,7 @@ public class paneInicioAdmi extends JPanel {
 		add(panelTrabajos);
 		panelTrabajos.setLayout(null);
 		
-		JButton btnIrTrabajos = new JButton("Control Trabajos");
+		JButton btnIrTrabajos = new JButton("Saldos");
 		btnIrTrabajos.setForeground(new Color(255, 255, 255));
 		btnIrTrabajos.setBackground(new Color(255, 152, 102));
 		btnIrTrabajos.setBounds(10, 188, 141, 23);

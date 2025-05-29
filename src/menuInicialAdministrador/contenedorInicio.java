@@ -79,7 +79,7 @@ public class contenedorInicio extends JFrame {
 		//Intancviamos los paneles que se desean agregar al contenedor
 		paneInicioAdmi paneInicioAdmin = new paneInicioAdmi();
 		panelMantenimientos paneMantenimientos = new panelMantenimientos();
-		panelTrabajo paneTrabajos = new panelTrabajo();
+		panelReportes paneTrabajos = new panelReportes();
 
 		
 		
@@ -187,7 +187,7 @@ public class contenedorInicio extends JFrame {
 		irInventario.setBounds(0, 408, 199, 51);
 		barraLateralMenu.add(irInventario);
 		
-		JLabel irTrabajos = new JLabel("Control de Trabajos", SwingConstants.CENTER);
+		JLabel irTrabajos = new JLabel("Reportes", SwingConstants.CENTER);
 		JLabel iconoLabelTrabajos = new JLabel();
 		funciones.cargarImagenEnLabel(iconoLabelTrabajos, "/menuInicialCliente/img_cliente/work.png", 25, 25);
 		irTrabajos.setIcon(iconoLabelTrabajos.getIcon());

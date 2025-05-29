@@ -1,6 +1,7 @@
 
-package funcionesLogin;
+package funciones;
 
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Image;
@@ -14,6 +15,8 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -88,6 +91,22 @@ public class funciones {
 		    }
 		});
 
+	}
+	
+	public static void cambiarPanel(JPanel contenedor, String nombrePanel) {
+	    try {
+	        if (!(contenedor.getLayout() instanceof CardLayout)) {
+	            throw new IllegalArgumentException("El contenedor no tiene CardLayout asignado.");
+	        }
+	        CardLayout cl = (CardLayout) contenedor.getLayout();
+	        cl.show(contenedor, nombrePanel);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, 
+	            "Error al cambiar de panel: " + e.getMessage(), 
+	            "Error", 
+	            JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 
 }

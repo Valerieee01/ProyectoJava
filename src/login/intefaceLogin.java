@@ -18,18 +18,13 @@ import javax.swing.border.MatteBorder;
 
 import classBorder.BordeRedondeado;
 import conectionFrames.conectarFrames;
+import funciones.funciones;
 
 import java.awt.Color;
 import javax.swing.SwingConstants;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JButton;
-
-
-/*
- * Importación clases
- */
-import funcionesLogin.funciones;
 
 
 public class intefaceLogin extends JFrame {

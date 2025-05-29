@@ -4,7 +4,7 @@ package login;
  *Importación clases 
  */
 import conectionFrames.conectarFrames;
-import funcionesLogin.funciones;
+import funciones.funciones;
 
 /*
  * Importación de librerias

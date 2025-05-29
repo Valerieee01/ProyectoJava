@@ -1,8 +1,5 @@
 package menuInicialAdministrador;
 
-import funcionesLogin.funciones;
-
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -11,6 +8,7 @@ import javax.swing.JLabel;
 import com.toedter.calendar.JDateChooser;
 
 import classBorder.BordeRedondeado;
+import funciones.funciones;
 
 import java.awt.*;
 import java.text.SimpleDateFormat;

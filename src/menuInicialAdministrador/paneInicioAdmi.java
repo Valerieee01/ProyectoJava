@@ -1,18 +1,15 @@
 package menuInicialAdministrador;
 
 /*
- * Importación de clases  
- */
-
-import funcionesLogin.funciones;
-
-/*
  *Importar Librerias 
  */
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import funciones.funciones;
+
 import java.awt.CardLayout;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -50,10 +47,18 @@ public class paneInicioAdmi extends JPanel {
 		add(panelInventario);
 		panelInventario.setLayout(null);
 		
+		JPanel contenedorCentral = new JPanel(new CardLayout());
+		contenedorCentral.add(new paneInventario(), "inventario");
+		contenedorCentral.add(new panelMantenimientos(), "mantenimientos");
+		contenedorCentral.add(new panelReportes(), "reportes");
+		contenedorCentral.add(new paneSaldos(), "saldos");
+
+		
 		JButton btnIrInventario = new JButton("Inventario");
 		btnIrInventario.setForeground(new Color(255, 255, 255));
 		btnIrInventario.setBackground(new Color(255, 152, 102));
 		btnIrInventario.setBounds(23, 188, 116, 23);
+		btnIrInventario.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "inventario"));
 		panelInventario.add(btnIrInventario);
 		
 		JLabel labelimgInventario = new JLabel("");
@@ -71,6 +76,7 @@ public class paneInicioAdmi extends JPanel {
 		btnIrMnto.setForeground(new Color(255, 255, 255));
 		btnIrMnto.setBackground(new Color(255, 152, 102));
 		btnIrMnto.setBounds(10, 187, 141, 23);
+		btnIrMnto.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "mantenimientos"));
 		panelMantenimientos.add(btnIrMnto);
 		
 		JLabel labelimgMnatenimientos = new JLabel("New label");
@@ -88,6 +94,7 @@ public class paneInicioAdmi extends JPanel {
 		btnIrReportes.setForeground(new Color(255, 255, 255));
 		btnIrReportes.setBackground(new Color(255, 152, 102));
 		btnIrReportes.setBounds(24, 190, 114, 23);
+		btnIrReportes.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "reportes"));
 		panelReportes.add(btnIrReportes);
 		
 		JLabel labelimgReportes = new JLabel("");
@@ -105,6 +112,7 @@ public class paneInicioAdmi extends JPanel {
 		btnIrTrabajos.setForeground(new Color(255, 255, 255));
 		btnIrTrabajos.setBackground(new Color(255, 152, 102));
 		btnIrTrabajos.setBounds(10, 188, 141, 23);
+		btnIrTrabajos.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "saldos"));
 		panelTrabajos.add(btnIrTrabajos);
 		
 		JLabel labelimgTrabajos = new JLabel("New label");

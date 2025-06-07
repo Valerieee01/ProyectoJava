@@ -75,18 +75,22 @@ public class contenedorInicio extends JFrame {
 		paneInicioAdmi paneInicioAdmin = new paneInicioAdmi();
 		panelMantenimientos paneMantenimientos = new panelMantenimientos();
 		panelReportes paneTrabajos = new panelReportes();
-
+		panelClientes panelClientes = new panelClientes();
+		panelEmpleados panelEmpleados = new panelEmpleados();
+		panelEquipos panelEquipos = new panelEquipos();
+		panelProveedores panelProveedores = new panelProveedores();
+		
 		
 		
 		// agregamos los paneles al contenedor
 		ContenedorCardLayout.add(paneInicioAdmin, "paneInicioAdmin");
 		ContenedorCardLayout.add(paneMantenimientos, "paneMantenimientos");
 		ContenedorCardLayout.add(paneTrabajos, "paneTrabajos");
+		ContenedorCardLayout.add(panelClientes, "paneClientes");
+		ContenedorCardLayout.add(panelEmpleados, "paneEmpleados");
+		ContenedorCardLayout.add(panelEquipos, "paneEquipos");
+		ContenedorCardLayout.add(panelProveedores, "paneProveedores");
 
-
-		
-		
-		
 		
 		//creamos el menu lateral 
 		JPanel barraLateralMenu = new JPanel();
@@ -264,6 +268,8 @@ public class contenedorInicio extends JFrame {
 		irClientes.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneClientes");
+
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
@@ -286,6 +292,8 @@ public class contenedorInicio extends JFrame {
 		irProveedores.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneProveedores");
+
 			}
 			 @Override
 		    public void mouseEntered(MouseEvent e) {
@@ -308,7 +316,7 @@ public class contenedorInicio extends JFrame {
 		irEmpleados.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
+			    cardLayout.show(ContenedorCardLayout, "paneEmpleados");
 			}
 			 @Override
 		    public void mouseEntered(MouseEvent e) {
@@ -329,9 +337,14 @@ public class contenedorInicio extends JFrame {
 		irEquipos.setOpaque(true);
 		irEquipos.setBackground(new Color(255, 128, 64)); // color base
 		irEquipos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				cardLayout.show(ContenedorCardLayout, "paneEquipos");
+			}
 		    @Override
 		    public void mouseEntered(MouseEvent e) {
 		    	irEquipos.setBackground(new Color(255, 180, 100)); // color hover más claro
+
 		    }
 		    @Override
 		    public void mouseExited(MouseEvent e) {

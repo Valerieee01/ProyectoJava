@@ -69,8 +69,8 @@ public class paneInicioAdmi extends JPanel {
 		JPanel panelMantenimientos = new JPanel();
 		panelMantenimientos.setBackground(new Color(255, 176, 138));
 		panelMantenimientos.setBounds(514, 69, 161, 238);
-		add(panelMantenimientos);
 		panelMantenimientos.setLayout(null);
+		add(panelMantenimientos);
 		
 		JButton btnIrMnto = new JButton("Mantenimientos");
 		btnIrMnto.setForeground(new Color(255, 255, 255));
@@ -87,8 +87,8 @@ public class paneInicioAdmi extends JPanel {
 		JPanel panelReportes = new JPanel();
 		panelReportes.setBackground(new Color(255, 176, 138));
 		panelReportes.setBounds(150, 460, 161, 238);
-		add(panelReportes);
 		panelReportes.setLayout(null);
+		add(panelReportes);
 		
 		JButton btnIrReportes = new JButton("Reportes");
 		btnIrReportes.setForeground(new Color(255, 255, 255));

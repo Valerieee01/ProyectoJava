@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import formularios.FormularioEditar;
+import formularios.FormularioEditarCliente;
 
 public class BotonEditorEquipos extends DefaultCellEditor {
     /**
@@ -75,10 +76,16 @@ public class BotonEditorEquipos extends DefaultCellEditor {
     }
     
     private void modificar(int row, DefaultTableModel modeloTabla) {
-        Window parent = SwingUtilities.getWindowAncestor(tablaEquipos);
-        FormularioEditar dialog = new FormularioEditar(parent, modeloTabla, row);
-        dialog.setVisible(true);
-        fireEditingStopped();
+        try {
+        	Window parent = SwingUtilities.getWindowAncestor(tablaEquipos);
+        	FormularioEditarCliente dialog = new FormularioEditarCliente(parent, modeloTabla, row);
+        	dialog.setVisible(true);
+        	fireEditingStopped();
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error al abrir el formulario: " + ex.getMessage());
+	    }
+	    fireEditingStopped();
     }
 
 

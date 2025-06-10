@@ -89,10 +89,10 @@ public class FormularioEditar extends JDialog {
 
         // Si es edición, rellena campos con datos de la fila
         if (esEdicion && rowIndex >= 0) {
-            txtNumero.setText(modeloTabla.getValueAt(rowIndex, 1).toString());
-            txtPlaca.setText(modeloTabla.getValueAt(rowIndex, 2).toString());
-            txtDescripcion.setText(modeloTabla.getValueAt(rowIndex, 3).toString());
-            txtIdCliente.setText(modeloTabla.getValueAt(rowIndex, 4).toString());
+            txtNumero.setText(modeloTabla.getValueAt(rowIndex, 0).toString());
+            txtPlaca.setText(modeloTabla.getValueAt(rowIndex, 1).toString());
+            txtDescripcion.setText(modeloTabla.getValueAt(rowIndex, 2).toString());
+            txtIdCliente.setText(modeloTabla.getValueAt(rowIndex, 3).toString());
         }
 
         // Acción del botón Guardar/Actualizar
@@ -106,8 +106,8 @@ public class FormularioEditar extends JDialog {
             };
             if (esEdicion && rowIndex >= 0) {
                 // Actualiza fila existente
-                for (int i = 0; i < datos.length; i++) {
-                    modeloTabla.setValueAt(datos[i], rowIndex, i + 1);
+            	for (int i = 0; i < datos.length; i++) {
+                    modeloTabla.setValueAt(datos[i], rowIndex, i);
                 }
             } else {
                 // Agrega nueva fila

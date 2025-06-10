@@ -3,31 +3,18 @@ package menuInicialAdministrador;
 /*
  *Importar Librerias 
  */
-import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+
 
 import funciones.funciones;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import java.awt.Font;
-import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
 /*
  * Importacion de librerias 
  */
 import javax.swing.JPanel;
-import javax.swing.JLabel;
-import java.awt.Font;
-import javax.swing.SwingConstants;
 import java.awt.Color;
 import javax.swing.JButton;
-import java.awt.CardLayout;
 
 public class paneInicioAdmi extends JPanel {
 

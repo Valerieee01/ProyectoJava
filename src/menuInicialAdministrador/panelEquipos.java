@@ -31,7 +31,7 @@ public class panelEquipos extends JPanel {
 
         // Modelo de la tabla
         modeloTabla = new DefaultTableModel(
-                new Object[]{"ID", "Número", "Placa", "Descripción", "ID Cliente", "Fecha Registro", "Acciones"}, 0) {
+                new Object[]{"Número", "Placa", "Descripción", "ID Cliente","Acciones"}, 0) {
             /**
 					 * 
 					 */
@@ -39,7 +39,7 @@ public class panelEquipos extends JPanel {
 
 			@Override
             public boolean isCellEditable(int row, int column) {
-                return column == 6; // Solo la columna de acciones es editable
+                return column == 4; 
             }
         };
 
@@ -56,7 +56,7 @@ public class panelEquipos extends JPanel {
                 int row = rowAtPoint(p);
                 int col = columnAtPoint(p);
 
-                if (col == 6) { // Columna de botones
+                if (col == 4) { // Columna de botones
                     int xDentroCelda = e.getX() - getCellRect(row, col, true).x;
                     if (xDentroCelda < 32) return "Modificar equipo";
                     else if (xDentroCelda < 64) return "Eliminar equipo";

@@ -72,7 +72,7 @@ public class contenedorInicio extends JFrame {
 		
 		
 		//Intancviamos los paneles que se desean agregar al contenedor
-		paneInicioEmpleado paneInicioEmpleado = new paneInicioEmpleado();
+		paneInicioEmpleado paneInicioEmpleado = new paneInicioEmpleado(cardLayout, ContenedorCardLayout);
 		panelMantenimientos paneMantenimientos = new panelMantenimientos();
 		panelReportes paneTrabajos = new panelReportes();
 		paneSaldos paneSaldos = new paneSaldos();

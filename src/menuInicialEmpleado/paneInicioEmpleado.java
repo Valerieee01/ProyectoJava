@@ -21,27 +21,17 @@ public class paneInicioEmpleado extends JPanel {
 	private static final long serialVersionUID = 1L;
     private Color naranjaPastel = new Color(0xFF, 0xE5, 0xCC);
 
+    private CardLayout cardLayout;
+    private JPanel contenedorCardLayout;
 	/**
 	 * Create the panel.
 	 */
-	public paneInicioEmpleado() {
-		setBackground(naranjaPastel);
-		setLayout(null);
-		
-		
-		JPanel contenedorCentral = new JPanel(new CardLayout());
-		
-		panelMantenimientos paneMantenimientos = new panelMantenimientos();
-		panelReportes paneTrabajos = new panelReportes();
-		paneSaldos paneSaldos = new paneSaldos();
-		
-		
-		contenedorCentral.add(paneMantenimientos, "mantenimientos");
-		contenedorCentral.add(paneTrabajos, "reportes");
-		contenedorCentral.add(paneSaldos, "saldos");
-		
-		contenedorCentral.setBounds(199, 61, 820, 756);
-		add(contenedorCentral);
+    public paneInicioEmpleado(CardLayout cardLayout, JPanel contenedorCardLayout) {
+        this.cardLayout = cardLayout;
+        this.contenedorCardLayout = contenedorCardLayout;
+
+        setLayout(null);
+        setBackground(new Color(255, 245, 230));
 
 		JPanel panelMantenimientos = new JPanel();
 		panelMantenimientos.setBackground(new Color(255, 176, 138));
@@ -53,7 +43,7 @@ public class paneInicioEmpleado extends JPanel {
 		btnIrMnto.setForeground(new Color(255, 255, 255));
 		btnIrMnto.setBackground(new Color(255, 152, 102));
 		btnIrMnto.setBounds(10, 187, 141, 23);
-		btnIrMnto.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "mantenimientos"));
+		btnIrMnto.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneSaldos"));
 		panelMantenimientos.add(btnIrMnto);
 		
 		JLabel labelimgMnatenimientos = new JLabel("New label");
@@ -71,7 +61,7 @@ public class paneInicioEmpleado extends JPanel {
 		btnIrReportes.setForeground(new Color(255, 255, 255));
 		btnIrReportes.setBackground(new Color(255, 152, 102));
 		btnIrReportes.setBounds(24, 190, 114, 23);
-		btnIrReportes.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "reportes"));
+		btnIrReportes.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneSaldos"));
 		panelReportes.add(btnIrReportes);
 		
 		JLabel labelimgReportes = new JLabel("");
@@ -89,7 +79,7 @@ public class paneInicioEmpleado extends JPanel {
 		btnIrTrabajos.setForeground(new Color(255, 255, 255));
 		btnIrTrabajos.setBackground(new Color(255, 152, 102));
 		btnIrTrabajos.setBounds(10, 188, 141, 23);
-		btnIrTrabajos.addActionListener(e ->funciones.cambiarPanel(contenedorCentral, "saldos"));
+		btnIrTrabajos.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneSaldos"));
 		panelTrabajos.add(btnIrTrabajos);
 		
 		JLabel labelimgTrabajos = new JLabel("New label");
@@ -97,9 +87,7 @@ public class paneInicioEmpleado extends JPanel {
 		funciones.cargarImagenEnLabel(labelimgTrabajos, "/imgAdministrador/trabajo.png", 89, 85);
 		panelTrabajos.add(labelimgTrabajos);
 		
-		// Establece tamaño y posición del contenedor central
-		contenedorCentral.setBounds(720, 100, 600, 400); 
-		add(contenedorCentral); 
+		
 
 	}
 }

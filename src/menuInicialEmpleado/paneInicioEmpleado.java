@@ -43,7 +43,7 @@ public class paneInicioEmpleado extends JPanel {
 		btnIrMnto.setForeground(new Color(255, 255, 255));
 		btnIrMnto.setBackground(new Color(255, 152, 102));
 		btnIrMnto.setBounds(10, 187, 141, 23);
-		btnIrMnto.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneSaldos"));
+		btnIrMnto.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneMantenimientos"));
 		panelMantenimientos.add(btnIrMnto);
 		
 		JLabel labelimgMnatenimientos = new JLabel("New label");
@@ -61,7 +61,7 @@ public class paneInicioEmpleado extends JPanel {
 		btnIrReportes.setForeground(new Color(255, 255, 255));
 		btnIrReportes.setBackground(new Color(255, 152, 102));
 		btnIrReportes.setBounds(24, 190, 114, 23);
-		btnIrReportes.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneSaldos"));
+		btnIrReportes.addActionListener(e -> cardLayout.show(contenedorCardLayout, "paneTrabajos"));
 		panelReportes.add(btnIrReportes);
 		
 		JLabel labelimgReportes = new JLabel("");

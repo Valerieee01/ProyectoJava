@@ -40,7 +40,7 @@ public class paneInicioEmpleado extends JPanel {
 		contenedorCentral.add(paneTrabajos, "reportes");
 		contenedorCentral.add(paneSaldos, "saldos");
 		
-		contenedorCentral.setBounds(720, 100, 600, 400); 
+		contenedorCentral.setBounds(199, 61, 820, 756);
 		add(contenedorCentral);
 
 		JPanel panelMantenimientos = new JPanel();

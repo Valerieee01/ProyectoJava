@@ -6,6 +6,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry excluding="login/img_login/|login/img_login/|login/images/" kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/zharm/Downloads/jcalendar-1.4/lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/VALERIE/Downloads/jcalendar-1.4 (1)/lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/VALERIE/Downloads/jcalendar-1.4 (1)/lib/jgoodies-common-1.2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/VALERIE/Downloads/jcalendar-1.4 (1)/lib/jgoodies-looks-2.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/VALERIE/Downloads/jcalendar-1.4 (1)/lib/junit-4.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

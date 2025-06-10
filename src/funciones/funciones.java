@@ -94,19 +94,8 @@ public class funciones {
 	}
 	
 	public static void cambiarPanel(JPanel contenedor, String nombrePanel) {
-	    try {
-	        if (!(contenedor.getLayout() instanceof CardLayout)) {
-	            throw new IllegalArgumentException("El contenedor no tiene CardLayout asignado.");
-	        }
-	        CardLayout cl = (CardLayout) contenedor.getLayout();
-	        cl.show(contenedor, nombrePanel);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        JOptionPane.showMessageDialog(null, 
-	            "Error al cambiar de panel: " + e.getMessage(), 
-	            "Error", 
-	            JOptionPane.ERROR_MESSAGE);
-	    }
+	    CardLayout cl = (CardLayout) contenedor.getLayout();
+	    cl.show(contenedor, nombrePanel);
 	}
 
 }

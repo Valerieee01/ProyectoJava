@@ -6,7 +6,11 @@ import javax.swing.table.TableCellRenderer;
 
 public class BotonRenderer extends JPanel implements TableCellRenderer {
 
-    private JButton btnModificar, btnEliminar, btnImprimir;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JButton btnModificar, btnEliminar, btnImprimir;
 
     public BotonRenderer( JTable tablaEquipos ) {
         setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));

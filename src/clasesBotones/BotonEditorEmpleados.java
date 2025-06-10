@@ -3,20 +3,21 @@ package clasesBotones;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import formularios.FormularioEditar;
 
-public class BotonEditorEquipos extends DefaultCellEditor {
+import formularios.FormularioEditarEmpleado;
+
+public class BotonEditorEmpleados extends DefaultCellEditor {
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	protected JPanel panel;
     protected JButton btnModificar, btnEliminar, btnImprimir;
-    private JTable tablaEquipos;
+    private JTable tablaEmpleados;
     private DefaultTableModel modeloTabla;
     private int currentRow;
 
-    public BotonEditorEquipos(JCheckBox checkBox, DefaultTableModel modeloTabla, JTable tablaEquipos) {
+    public BotonEditorEmpleados(JCheckBox checkBox, DefaultTableModel modeloTabla, JTable tablaEmpleados) {
         super(checkBox);
         
         ToolTipManager.sharedInstance().setEnabled(true);
@@ -24,7 +25,7 @@ public class BotonEditorEquipos extends DefaultCellEditor {
         ToolTipManager.sharedInstance().setInitialDelay(200); // milisegundos
 
         this.modeloTabla = modeloTabla;
-        this.tablaEquipos = tablaEquipos;
+        this.tablaEmpleados = tablaEmpleados;
 
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         btnModificar = new JButton();
@@ -69,18 +70,24 @@ public class BotonEditorEquipos extends DefaultCellEditor {
     }
 
     @Override
-     public Component getTableCellEditorComponent(JTable table, Object value,boolean isSelected, int row, int column) {
-        currentRow = row; // Guardamos la fila real
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        currentRow = tablaEmpleados.convertRowIndexToModel(row);
         return panel;
     }
     
+    
     private void modificar(int row, DefaultTableModel modeloTabla) {
-        Window parent = SwingUtilities.getWindowAncestor(tablaEquipos);
-        FormularioEditar dialog = new FormularioEditar(parent, modeloTabla, row);
-        dialog.setVisible(true);
-        fireEditingStopped();
+        try {
+        	 Window parent = SwingUtilities.getWindowAncestor(tablaEmpleados);
+             FormularioEditarEmpleado dialog = new FormularioEditarEmpleado(parent, modeloTabla, row);
+             dialog.setVisible(true);
+             fireEditingStopped();
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Error al abrir el formulario: " + ex.getMessage());
+	    }
+	    fireEditingStopped();
     }
-
 
     public void eliminar(int row) {
         if (row >= 0 && row < modeloTabla.getRowCount()) {
@@ -88,7 +95,6 @@ public class BotonEditorEquipos extends DefaultCellEditor {
             if (confirm == JOptionPane.YES_OPTION) {
                 // Eliminar del modelo
                 modeloTabla.removeRow(row);
-                // No intentes acceder a modelo.getValueAt(row, ...) después de eliminar
             }
         } else {
             System.out.println("Índice de fila inválido: " + row);
@@ -109,5 +115,3 @@ public class BotonEditorEquipos extends DefaultCellEditor {
     	return new ImageIcon(imagen);
     }
 }
-
-

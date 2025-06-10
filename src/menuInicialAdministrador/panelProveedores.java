@@ -6,7 +6,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-import clasesBotones.BotonEditorEquipos;
+import clasesBotones.BotonEditorProveedores;
 import clasesBotones.BotonRenderer;
 import formularios.FormularioEditarProveedor;
 
@@ -29,19 +29,15 @@ public class panelProveedores extends JPanel {
         btnNuevoProveedor.setBackground(new Color(255, 146, 94));
         add(btnNuevoProveedor, BorderLayout.NORTH);
 
-        // Modelo de la tabla
         modeloTabla = new DefaultTableModel(
-                new Object[]{"Nombre Completo", "Identificacion", "Correo", "Telefono", "Direccion", "Acciones"}, 0) {
-            /**
-					 * 
-					 */
-					private static final long serialVersionUID = 1L;
+        	    new Object[]{"Nombre Completo", "Identificacion", "Correo", "Telefono","Estado", "Acciones"}, 0) {
+        	    private static final long serialVersionUID = 1L;
 
-			@Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 6; // Solo la columna de acciones es editable
-            }
-        };
+        	    @Override
+        	    public boolean isCellEditable(int row, int column) {
+        	        return column == 5; 
+        	    }
+        	};
 
         // Crear la tabla correctamente con tooltips personalizados
         tablaProveedores = new JTable(modeloTabla) {
@@ -56,7 +52,7 @@ public class panelProveedores extends JPanel {
                 int row = rowAtPoint(p);
                 int col = columnAtPoint(p);
 
-                if (col == 6) { // Columna de botones
+                if (col == 5) { // Columna de botones
                     int xDentroCelda = e.getX() - getCellRect(row, col, true).x;
                     if (xDentroCelda < 32) return "Modificar equipo";
                     else if (xDentroCelda < 64) return "Eliminar equipo";
@@ -85,8 +81,9 @@ public class panelProveedores extends JPanel {
         });
 
         tablaProveedores.setRowHeight(35);
+        tablaProveedores.setAutoCreateRowSorter(true);
         tablaProveedores.getColumn("Acciones").setCellRenderer(new BotonRenderer(tablaProveedores));
-        tablaProveedores.getColumn("Acciones").setCellEditor(new BotonEditorEquipos(new JCheckBox(), modeloTabla, tablaProveedores));
+        tablaProveedores.getColumn("Acciones").setCellEditor(new BotonEditorProveedores(new JCheckBox(), modeloTabla, tablaProveedores));
 
         add(new JScrollPane(tablaProveedores), BorderLayout.CENTER);
 

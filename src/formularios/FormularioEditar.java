@@ -1,142 +1,187 @@
 package formularios;
 
-import javax.swing.*;  // Importa componentes Swing básicos
-import javax.swing.border.EmptyBorder;  // Para márgenes internos en paneles
-import javax.swing.border.TitledBorder;  // Para bordes con título
-import javax.swing.table.DefaultTableModel;  // Modelo de tabla por defecto
-import java.awt.*;  // Importa clases AWT (layouts, eventos, etc.)
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+
+import DAO.EquiposDAO; // Importar tu DAO
+import menuInicialAdministrador.panelEquipos; // Importar el panel para recargar la tabla
+import modelos.Equipo; // Importar tu modelo Equipo
+
+import java.awt.*;
+import java.sql.SQLException; // Manejar excepciones de SQL
 
 public class FormularioEditar extends JDialog {
 
-    private static final long serialVersionUID = 1L;  // Versión de serialización para JDialog
+    private static final long serialVersionUID = 1L;
 
-    // Campos de texto para los datos del equipo
     private JTextField txtNumero, txtPlaca, txtDescripcion, txtIdCliente;
-    private JButton btnGuardar, btnCancelar;  // Botones de acción
+    private JButton btnGuardar, btnCancelar;
 
-    // Constructor para modo "Agregar"
-    public FormularioEditar(Window parent, DefaultTableModel modeloTabla) {
-        super(parent, "Agregar Equipo", ModalityType.APPLICATION_MODAL);  // Inicializa JDialog modal
-        configurarFormulario(modeloTabla, false, -1);  // Llama al método de configuración en modo agregar
+    private DefaultTableModel modeloTabla; // Referencia al modelo de la tabla
+    private EquiposDAO equiposDAO;        // Referencia a tu DAO
+    private panelEquipos panelEquiposRef; // Referencia al panel para refrescar la tabla
+    private boolean esEdicion;            // Indica si es modo edición
+    private int filaSeleccionada;         // Índice de la fila en modo edición
+    private int idEquipoAEditar = -1;     // ID del equipo real si estamos en modo edición (de la DB)
+
+
+    // Constructor para MODO AGREGAR
+    public FormularioEditar(Window parent, DefaultTableModel modeloTabla, EquiposDAO equiposDAO, panelEquipos panelEquiposRef) {
+        super(parent, "Agregar Equipo", ModalityType.APPLICATION_MODAL);
+        this.modeloTabla = modeloTabla;
+        this.equiposDAO = equiposDAO;
+        this.panelEquiposRef = panelEquiposRef;
+        this.esEdicion = false;
+        configurarFormulario(); // Llama al método de configuración, ahora sin parámetros booleanos o de índice
     }
 
-    // Constructor para modo "Editar" con índice de fila
-    public FormularioEditar(Window parent, DefaultTableModel modeloTabla, int rowIndex) {
-        super(parent, "Editar Equipo", ModalityType.APPLICATION_MODAL);  // Título y modalidad
-        configurarFormulario(modeloTabla, true, rowIndex);  // Configuración en modo edición
+    // Constructor para MODO EDITAR
+    public FormularioEditar(Window parent, DefaultTableModel modeloTabla, EquiposDAO equiposDAO, panelEquipos panelEquiposRef, int filaSeleccionada) {
+        super(parent, "Editar Equipo", ModalityType.APPLICATION_MODAL);
+        this.modeloTabla = modeloTabla;
+        this.equiposDAO = equiposDAO;
+        this.panelEquiposRef = panelEquiposRef;
+        this.esEdicion = true;
+        this.filaSeleccionada = filaSeleccionada;
+        configurarFormulario(); // Llama al método de configuración
     }
 
-    // Método interno que arma la interfaz y lógica
-    private void configurarFormulario(DefaultTableModel modeloTabla, boolean esEdicion, int rowIndex) {
-        setSize(550, 480);  // Dimensiones del diálogo
-        setLocationRelativeTo(getParent());  // Centra respecto a la ventana padre
-        setResizable(false);  // No permite cambiar tamaño
-        setLayout(new BorderLayout(10, 10));  // Layout principal con márgenes
-        getContentPane().setBackground(Color.decode("#f4f6f8"));  // Color de fondo suave
+    // Método interno que arma la interfaz y lógica (ahora sin parámetros)
+    private void configurarFormulario() {
+        setSize(550, 480);
+        setLocationRelativeTo(getParent());
+        setResizable(false);
+        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(Color.decode("#f4f6f8"));
 
-        // Panel principal para contener todo
         JPanel panelPrincipal = new JPanel(new BorderLayout());
-        panelPrincipal.setBorder(new EmptyBorder(20, 25, 15, 25));  // Margen interno
-        panelPrincipal.setBackground(Color.decode("#f4f6f8"));  // Coincide fondo
+        panelPrincipal.setBorder(new EmptyBorder(20, 25, 15, 25));
+        panelPrincipal.setBackground(Color.decode("#f4f6f8"));
 
-        // Título en la parte superior del diálogo
         JLabel titulo = new JLabel(esEdicion ? "Editar Equipo" : "Agregar Equipo");
-        titulo.setFont(new Font("Arial", Font.BOLD, 20));  // Fuente grande
-        titulo.setHorizontalAlignment(SwingConstants.CENTER);  // Centrado horizontal
-        panelPrincipal.add(titulo, BorderLayout.NORTH);  // Agrega al norte
+        titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        titulo.setHorizontalAlignment(SwingConstants.CENTER);
+        panelPrincipal.add(titulo, BorderLayout.NORTH);
 
-        // Panel con grid para campos del formulario
         JPanel panelFormulario = new JPanel(new GridBagLayout());
-        panelFormulario.setBackground(Color.white);  // Fondo blanco para contraste
+        panelFormulario.setBackground(Color.white);
         panelFormulario.setBorder(new TitledBorder(
-            BorderFactory.createLineBorder(Color.gray, 1, true),  // Borde gris redondeado
-            "Datos del Equipo",  // Texto del borde
-            TitledBorder.LEFT,  // Alineación del título
-            TitledBorder.TOP,  // Posición del título
-            new Font("SansSerif", Font.BOLD, 14)  // Fuente del título
+            BorderFactory.createLineBorder(Color.gray, 1, true),
+            "Datos del Equipo",
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            new Font("SansSerif", Font.BOLD, 14)
         ));
 
-        // Configuración de GridBagConstraints para posición de componentes
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 15, 10, 15);  // Margen entre elementos
-        gbc.fill = GridBagConstraints.HORIZONTAL;  // Rellenar horizontalmente
-        gbc.gridx = 0;  // Columna inicial
-        gbc.gridy = 0;  // Fila inicial
+        gbc.insets = new Insets(10, 15, 10, 15);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
-        Font labelFont = new Font("Segoe UI", Font.PLAIN, 13);  // Fuente de etiquetas
-        Font campoFont = new Font("Segoe UI", Font.PLAIN, 14);  // Fuente de campos
+        Font labelFont = new Font("Segoe UI", Font.PLAIN, 13);
+        Font campoFont = new Font("Segoe UI", Font.PLAIN, 14);
 
-        // Agrega cada campo llamando al método auxiliar
         agregarCampo(panelFormulario, gbc, "Número de Equipo:", txtNumero = crearCampo(campoFont), labelFont);
         agregarCampo(panelFormulario, gbc, "Placa:", txtPlaca = crearCampo(campoFont), labelFont);
         agregarCampo(panelFormulario, gbc, "Descripción:", txtDescripcion = crearCampo(campoFont), labelFont);
         agregarCampo(panelFormulario, gbc, "ID Cliente:", txtIdCliente = crearCampo(campoFont), labelFont);
 
-        panelPrincipal.add(panelFormulario, BorderLayout.CENTER);  // Agrega formulario al centro
+        panelPrincipal.add(panelFormulario, BorderLayout.CENTER);
 
-        // Panel para botones "Guardar" y "Cancelar"
         JPanel pnlBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-        pnlBotones.setBackground(Color.decode("#f4f6f8"));  // Mismo fondo que principal
-        btnGuardar = new JButton(esEdicion ? "Actualizar" : "Guardar");  // Texto según modo
+        pnlBotones.setBackground(Color.decode("#f4f6f8"));
+        btnGuardar = new JButton(esEdicion ? "Actualizar" : "Guardar");
         btnCancelar = new JButton("Cancelar");
-        estilizarBoton(btnGuardar, new Color(76, 175, 80));  // Botón verde
-        estilizarBoton(btnCancelar, new Color(244, 67, 54));  // Botón rojo
+        estilizarBoton(btnGuardar, new Color(76, 175, 80));
+        estilizarBoton(btnCancelar, new Color(244, 67, 54));
         pnlBotones.add(btnGuardar);
         pnlBotones.add(btnCancelar);
-        panelPrincipal.add(pnlBotones, BorderLayout.SOUTH);  // Al sur del principal
+        panelPrincipal.add(pnlBotones, BorderLayout.SOUTH);
 
-        add(panelPrincipal);  // Agrega panel principal al JDialog
+        add(panelPrincipal);
 
-        // Si es edición, rellena campos con datos de la fila
-        if (esEdicion && rowIndex >= 0) {
-            txtNumero.setText(modeloTabla.getValueAt(rowIndex, 0).toString());
-            txtPlaca.setText(modeloTabla.getValueAt(rowIndex, 1).toString());
-            txtDescripcion.setText(modeloTabla.getValueAt(rowIndex, 2).toString());
-            txtIdCliente.setText(modeloTabla.getValueAt(rowIndex, 3).toString());
+        // Si es edición, rellena campos con datos de la fila de la tabla
+        if (esEdicion && filaSeleccionada >= 0) {
+            // Se asume que la columna 0 es el ID del equipo en la tabla
+            // Y el resto de columnas corresponden a numero, placa, descripcion, id_cliente
+            idEquipoAEditar = (int) modeloTabla.getValueAt(filaSeleccionada, 0); // Captura el ID real del equipo de la DB
+            txtNumero.setText(modeloTabla.getValueAt(filaSeleccionada, 1).toString());
+            txtPlaca.setText(modeloTabla.getValueAt(filaSeleccionada, 2).toString());
+            txtDescripcion.setText(modeloTabla.getValueAt(filaSeleccionada, 3).toString());
+            txtIdCliente.setText(modeloTabla.getValueAt(filaSeleccionada, 4).toString()); // ID Cliente ahora es columna 4
         }
-
-        // Acción del botón Guardar/Actualizar
+        
+        // --- Lógica del botón Guardar/Actualizar ---
         btnGuardar.addActionListener(e -> {
-            Object[] datos = {
-                txtNumero.getText().trim(),  // Número equipo
-                txtPlaca.getText().trim(),   // Placa
-                txtDescripcion.getText().trim(), // Descripción
-                txtIdCliente.getText().trim(),   // ID Cliente
-                "Acciones"  // Placeholder para columna de acciones
-            };
-            if (esEdicion && rowIndex >= 0) {
-                // Actualiza fila existente
-            	for (int i = 0; i < datos.length; i++) {
-                    modeloTabla.setValueAt(datos[i], rowIndex, i);
-                }
-            } else {
-                // Agrega nueva fila
-                modeloTabla.addRow(datos);
+            // Validar entrada del usuario (ej. que ID Cliente sea un número)
+            String numeroEquipo = txtNumero.getText().trim();
+            String placa = txtPlaca.getText().trim();
+            String descripcion = txtDescripcion.getText().trim();
+            int idCliente = -1; // Valor por defecto para indicar error
+
+            if (numeroEquipo.isEmpty() || placa.isEmpty() || descripcion.isEmpty() || txtIdCliente.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+                return; // Detener la ejecución si hay campos vacíos
             }
-            dispose();  // Cierra el diálogo
+
+            try {
+                idCliente = Integer.parseInt(txtIdCliente.getText().trim());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El ID Cliente debe ser un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+                return; // Detener la ejecución si el ID Cliente no es un número
+            }
+
+            // Crear o actualizar el objeto Equipo
+            Equipo equipo = new Equipo(numeroEquipo, placa, descripcion, idCliente);
+
+            try {
+                if (esEdicion) {
+                    equipo.setIdEquipo(idEquipoAEditar); // Establecer el ID del equipo a editar
+                    EquiposDAO.modificarEquipo(equipo); // Llamada NO estática
+                    JOptionPane.showMessageDialog(this, "Equipo modificado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    EquiposDAO.agregarEquipo(equipo); // Llamada NO estática
+                    JOptionPane.showMessageDialog(this, "Equipo agregado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                }
+                
+                // Refrescar la tabla en el panel principal
+                if (panelEquiposRef != null) {
+                    panelEquiposRef.cargarEquiposEnTabla();
+                }
+                dispose(); // Cerrar el diálogo después de la operación exitosa
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, 
+                                              "Error de base de datos: " + ex.getMessage(), 
+                                              "Error SQL", 
+                                              JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace(); // Imprime el stack trace para depuración
+            }
         });
-        btnCancelar.addActionListener(e -> dispose());  // Cierra sin guardar
+        
+        btnCancelar.addActionListener(e -> dispose()); // Cierra sin guardar
     }
 
-    // Método auxiliar para agregar etiquetas y campos al GridBagLayout
+    // Métodos auxiliares
     private void agregarCampo(JPanel panel, GridBagConstraints gbc, String etiqueta, Component campo, Font labelFont) {
         JLabel lbl = new JLabel(etiqueta);
-        lbl.setFont(labelFont);  // Aplica fuente a etiqueta
-        panel.add(lbl, gbc);  // Coloca etiqueta
-        gbc.gridx = 1;  // Mueve a siguiente columna
-        panel.add(campo, gbc);  // Coloca campo
-        gbc.gridx = 0;  // Resetea columna
-        gbc.gridy++;  // Sube una fila
+        lbl.setFont(labelFont);
+        panel.add(lbl, gbc);
+        gbc.gridx = 1;
+        panel.add(campo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
     }
 
-    // Crea un JTextField estilizado
     private JTextField crearCampo(Font fuente) {
-        JTextField txt = new JTextField(20);  // Ancho de 20 caracteres
+        JTextField txt = new JTextField(20);
         txt.setFont(fuente);
         return txt;
     }
 
-    // Aplica estilo de colores y fuente a un botón
     private void estilizarBoton(JButton btn, Color bg) {
         btn.setBackground(bg);
         btn.setForeground(Color.white);
@@ -145,4 +190,3 @@ public class FormularioEditar extends JDialog {
         btn.setPreferredSize(new Dimension(100, 30));
     }
 }
-

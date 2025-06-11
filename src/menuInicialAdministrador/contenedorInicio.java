@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import funciones.funciones;
+import menuInicialEmpleado.paneInicioEmpleado;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -72,9 +73,10 @@ public class contenedorInicio extends JFrame {
 		
 		
 		//Intancviamos los paneles que se desean agregar al contenedor
-		paneInicioAdmi paneInicioAdmin = new paneInicioAdmi();
+		paneInicioAdmi paneInicioAdmi = new paneInicioAdmi(cardLayout, ContenedorCardLayout);
 		panelMantenimientos paneMantenimientos = new panelMantenimientos();
-		panelReportes paneTrabajos = new panelReportes();
+		panelReportes panelReportes = new panelReportes();
+		paneSaldos paneSaldos = new paneSaldos();
 		panelClientes panelClientes = new panelClientes();
 		panelEmpleados panelEmpleados = new panelEmpleados();
 		panelEquipos panelEquipos = new panelEquipos();
@@ -83,12 +85,13 @@ public class contenedorInicio extends JFrame {
 		
 		
 		// agregamos los paneles al contenedor
-		ContenedorCardLayout.add(paneInicioAdmin, "paneInicioAdmin");
+		ContenedorCardLayout.add(paneInicioAdmi, "paneInicioAdmin");
 		ContenedorCardLayout.add(paneMantenimientos, "paneMantenimientos");
-		ContenedorCardLayout.add(paneTrabajos, "paneTrabajos");
+		ContenedorCardLayout.add(panelReportes, "paneReportes");
 		ContenedorCardLayout.add(panelClientes, "paneClientes");
 		ContenedorCardLayout.add(panelEmpleados, "paneEmpleados");
 		ContenedorCardLayout.add(panelEquipos, "paneEquipos");
+		ContenedorCardLayout.add(paneSaldos, "paneSaldos");
 		ContenedorCardLayout.add(panelProveedores, "paneProveedores");
 
 		
@@ -161,30 +164,6 @@ public class contenedorInicio extends JFrame {
 		irMnatenimientos.setBounds(0, 333, 199, 51);
 		barraLateralMenu.add(irMnatenimientos);
 		
-		JLabel irInventario = new JLabel("Inventario", SwingConstants.CENTER);
-		JLabel iconoLabelInventario = new JLabel();
-		funciones.cargarImagenEnLabel(iconoLabelInventario, "/menuInicialCliente/img_cliente/invent.png", 30, 30);
-		irInventario.setIcon(iconoLabelInventario.getIcon());
-		irInventario.setHorizontalTextPosition(SwingConstants.RIGHT);
-		irInventario.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
-		irInventario.setHorizontalAlignment(SwingConstants.CENTER);
-		irInventario.setOpaque(true); // NECESARIO
-		irInventario.setBackground(new Color(255, 255, 255)); // color base
-		irInventario.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-			@Override
-		    public void mouseEntered(MouseEvent e) {
-				irInventario.setBackground(new Color(255, 180, 100)); // color hover más claro
-		    }
-		    @Override
-		    public void mouseExited(MouseEvent e) {
-		    	irInventario.setBackground(new Color(255, 255, 255)); // vuelve al base
-		    }
-		});
-		irInventario.setBounds(0, 408, 199, 51);
-		barraLateralMenu.add(irInventario);
 		
 		JLabel irTrabajos = new JLabel("Reportes", SwingConstants.CENTER);
 		JLabel iconoLabelTrabajos = new JLabel();
@@ -198,7 +177,7 @@ public class contenedorInicio extends JFrame {
 		irTrabajos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-			    cardLayout.show(ContenedorCardLayout, "paneTrabajos");
+			    cardLayout.show(ContenedorCardLayout, "paneReportes");
 
 			}
 			@Override
@@ -210,7 +189,7 @@ public class contenedorInicio extends JFrame {
 		    	irTrabajos.setBackground(new Color(255, 255, 255)); // vuelve al base
 		    }
 		});
-		irTrabajos.setBounds(0, 479, 199, 51);
+		irTrabajos.setBounds(0, 408, 199, 51);
 		barraLateralMenu.add(irTrabajos);
 		
 		JLabel labelNombreUser = new JLabel("Valerie Zharmel");

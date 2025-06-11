@@ -3,7 +3,16 @@ package formularios;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
+
+import DAO.PersonasDAO;
+import modelos.Persona;
+import menuInicialAdministrador.panelClientes;
+import menuInicialAdministrador.panelProveedores;
+import util.ConnectionADMIN;
 import java.awt.*;
+import java.awt.Dialog.ModalityType;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class FormularioEditarProveedor extends JDialog {
 
@@ -12,26 +21,60 @@ public class FormularioEditarProveedor extends JDialog {
     private JComboBox<String> comboTipoId;
     private JRadioButton radioActivo, radioInactivo;
     private JButton btnGuardar, btnCancelar;
+    
 
-    public FormularioEditarProveedor(Window parent, DefaultTableModel modeloTabla) {
+    private panelProveedores panelProveedoresRef;
+    private String numeroIdentificacionOriginal;
+
+    /**
+     * Constructor para un nuevo cliente.
+     * @param parent El padre del diálogo.
+     * @param panelProveedoresRef La referencia al panel de clientes para recargar la tabla.
+     */
+    public FormularioEditarProveedor(Window parent, panelProveedores panelProveedoresRef) {
         super(parent, "Nuevo Proveedor", ModalityType.APPLICATION_MODAL);
-        configurarFormulario(modeloTabla, false, -1);
+        this.panelProveedoresRef = panelProveedoresRef;
+        configurarFormulario(false, null);
     }
 
-    public FormularioEditarProveedor(Window parent, DefaultTableModel modeloTabla, int rowIndex) {
+    /**
+     * Constructor para editar un cliente existente.
+     * @param parent El padre del diálogo.
+     * @param panelClientesRef La referencia al panel de clientes para recargar la tabla.
+     * @param numeroIdentificacionEditar El número de identificación del cliente a editar.
+     */
+    public FormularioEditarProveedor(Window parent, panelProveedores panelProveedoresRef, String numeroIdentificacionEditar) {
         super(parent, "Editar Proveedor", ModalityType.APPLICATION_MODAL);
-        configurarFormulario(modeloTabla, true, rowIndex);
+        this.panelProveedoresRef = panelProveedoresRef;
+        this.numeroIdentificacionOriginal = numeroIdentificacionEditar;
+        configurarFormulario(true, numeroIdentificacionEditar);
     }
-
-    private void configurarFormulario(DefaultTableModel modeloTabla, boolean esEdicion, int rowIndex) {
-        setSize(550, 580);
+    
+    private void configurarFormulario(boolean esEdicion, String numeroIdentificacionEditar) {
+        setSize(520, 520);
         setLocationRelativeTo(getParent());
-        setLayout(new BorderLayout(10, 10));
+        setResizable(false);
         getContentPane().setBackground(Color.decode("#f4f6f8"));
+        setLayout(new BorderLayout(10, 10));
+
+        JPanel panelPrincipal = new JPanel(new BorderLayout());
+        panelPrincipal.setBorder(new EmptyBorder(20, 25, 15, 25));
+        panelPrincipal.setBackground(Color.decode("#f4f6f8"));
+
+        JLabel titulo = new JLabel(esEdicion ? "Editar Cliente" : "Nuevo Cliente");
+        titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        titulo.setHorizontalAlignment(SwingConstants.CENTER);
+        panelPrincipal.add(titulo, BorderLayout.NORTH);
 
         JPanel panelFormulario = new JPanel(new GridBagLayout());
         panelFormulario.setBackground(Color.white);
-        panelFormulario.setBorder(new TitledBorder(new LineBorder(Color.gray, 1, true), "Datos del Proveedor", TitledBorder.LEFT, TitledBorder.TOP, new Font("SansSerif", Font.BOLD, 14)));
+        panelFormulario.setBorder(new TitledBorder(
+            BorderFactory.createLineBorder(Color.gray, 1, true),
+            "Datos del Cliente",
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            new Font("SansSerif", Font.BOLD, 14)
+        ));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 15, 10, 15);
@@ -40,125 +83,164 @@ public class FormularioEditarProveedor extends JDialog {
         gbc.gridy = 0;
 
         Font labelFont = new Font("Segoe UI", Font.PLAIN, 13);
+        Font campoFont = new Font("Segoe UI", Font.PLAIN, 14);
 
-        panelFormulario.add(crearEtiqueta("Nombre o Razón Social:", labelFont), gbc);
-        gbc.gridx = 1;
-        txtNombre = new JTextField(20);
-        panelFormulario.add(txtNombre, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Tipo de Identificación:", labelFont), gbc);
-        gbc.gridx = 1;
-        comboTipoId = new JComboBox<>(new String[]{"CC", "TI", "CE", "PAS"});
-        panelFormulario.add(comboTipoId, gbc);
+        agregarCampo(panelFormulario, gbc, "Nombre Completo:", txtNombre = crearCampo(campoFont), labelFont);
+        agregarCampo(panelFormulario, gbc, "Tipo de Identificación:", comboTipoId = crearCombo(campoFont), labelFont);
+        agregarCampo(panelFormulario, gbc, "Número de Identificación:", txtNumeroId = crearCampo(campoFont), labelFont);
+        agregarCampo(panelFormulario, gbc, "Correo Electrónico:", txtCorreo = crearCampo(campoFont), labelFont);
+        agregarCampo(panelFormulario, gbc, "Teléfono:", txtTelefono = crearCampo(campoFont), labelFont);
+        agregarCampo(panelFormulario, gbc, "Dirección:", txtDireccion = crearCampo(campoFont), labelFont);
 
         gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Número de Identificación:", labelFont), gbc);
-        gbc.gridx = 1;
-        txtNumeroId = new JTextField();
-        panelFormulario.add(txtNumeroId, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Correo Electrónico:", labelFont), gbc);
-        gbc.gridx = 1;
-        txtCorreo = new JTextField();
-        panelFormulario.add(txtCorreo, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Teléfono:", labelFont), gbc);
-        gbc.gridx = 1;
-        txtTelefono = new JTextField();
-        panelFormulario.add(txtTelefono, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Dirección:", labelFont), gbc);
-        gbc.gridx = 1;
-        txtDireccion = new JTextField();
-        panelFormulario.add(txtDireccion, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Ciudad:", labelFont), gbc);
-        gbc.gridx = 1;
-        txtCiudad = new JTextField();
-        panelFormulario.add(txtCiudad, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        panelFormulario.add(crearEtiqueta("Estado:", labelFont), gbc);
+        JLabel lblEstado = new JLabel("Estado:");
+        lblEstado.setFont(labelFont);
+        panelFormulario.add(lblEstado, gbc);
         gbc.gridx = 1;
         radioActivo = new JRadioButton("Activo", true);
         radioInactivo = new JRadioButton("Inactivo");
-        ButtonGroup grupoEstado = new ButtonGroup();
-        grupoEstado.add(radioActivo);
-        grupoEstado.add(radioInactivo);
+        radioActivo.setFont(campoFont);
+        radioInactivo.setFont(campoFont);
+        radioActivo.setBackground(Color.white);
+        radioInactivo.setBackground(Color.white);
+        ButtonGroup grupo = new ButtonGroup();
+        grupo.add(radioActivo);
+        grupo.add(radioInactivo);
+        JPanel pnlEstado = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        pnlEstado.setBackground(Color.white);
+        pnlEstado.add(radioActivo);
+        pnlEstado.add(radioInactivo);
+        panelFormulario.add(pnlEstado, gbc);
 
-        JPanel panelEstado = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        panelEstado.setBackground(Color.white);
-        panelEstado.add(radioActivo);
-        panelEstado.add(radioInactivo);
-        panelFormulario.add(panelEstado, gbc);
+        panelPrincipal.add(panelFormulario, BorderLayout.CENTER);
 
-        add(panelFormulario, BorderLayout.CENTER);
-
-        // Panel botones
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
-        panelBotones.setBackground(Color.decode("#f4f6f8"));
+        JPanel pnlBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        pnlBotones.setBackground(Color.decode("#f4f6f8"));
         btnGuardar = new JButton(esEdicion ? "Actualizar" : "Guardar");
         btnCancelar = new JButton("Cancelar");
+        estilizarBoton(btnGuardar, new Color(76, 175, 80));
+        estilizarBoton(btnCancelar, new Color(244, 67, 54));
+        pnlBotones.add(btnGuardar);
+        pnlBotones.add(btnCancelar);
+        panelPrincipal.add(pnlBotones, BorderLayout.SOUTH);
 
-        estilizarBoton(btnGuardar, new Color(76, 175, 80), Color.white);
-        estilizarBoton(btnCancelar, new Color(244, 67, 54), Color.white);
+        add(panelPrincipal);
 
-        panelBotones.add(btnGuardar);
-        panelBotones.add(btnCancelar);
-        add(panelBotones, BorderLayout.SOUTH);
+        if (esEdicion && numeroIdentificacionEditar != null && !numeroIdentificacionEditar.isEmpty()) {
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí
+                PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión al constructor
+                Persona persona = personasDAO.obtenerPersonaPorNumeroIdentificacion(numeroIdentificacionEditar, conn); // Pasa la conexión al método
+                if (persona != null) {
+                    txtNombre.setText(persona.getNombres());
+                    String tipoIdentificacionStr = "";
+                    switch (persona.getTipoIdentificacion()) {
+                        case 1: tipoIdentificacionStr = "CC"; break;
+                        case 2: tipoIdentificacionStr = "TI"; break;
+                        case 3: tipoIdentificacionStr = "CE"; break;
+                        case 4: tipoIdentificacionStr = "PAS"; break;
+                        default: tipoIdentificacionStr = "CC"; // Valor por defecto
+                    }
+                    comboTipoId.setSelectedItem(tipoIdentificacionStr);
 
-        // Cargar valores si es edición
-        if (esEdicion && rowIndex >= 0) {
-        	txtNombre.setText(modeloTabla.getValueAt(rowIndex, 0).toString());
-        	txtNumeroId.setText(modeloTabla.getValueAt(rowIndex, 1).toString());
-        	txtCorreo.setText(modeloTabla.getValueAt(rowIndex, 2).toString());
-        	txtTelefono.setText(modeloTabla.getValueAt(rowIndex, 3).toString());
-        	String estado = modeloTabla.getValueAt(rowIndex, 4).toString();
-        	if ("activo".equalsIgnoreCase(estado)) radioActivo.setSelected(true);
-        	else radioInactivo.setSelected(true);
+                    txtNumeroId.setText(persona.getNumeroIdentificacion());
+                    txtCorreo.setText(persona.getCorreo());
+                    txtTelefono.setText(persona.getTelefono());
+                    txtDireccion.setText(persona.getDireccion());
+                    if (persona.getEstado() == Persona.Estado.activo) radioActivo.setSelected(true);
+                    else radioInactivo.setSelected(true);
 
+                    txtNumeroId.setEnabled(false);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cliente no encontrado para edición.", "Error", JOptionPane.ERROR_MESSAGE);
+                    dispose();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error al cargar datos del cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                dispose();
+            }
         }
 
-        // Acción Guardar
         btnGuardar.addActionListener(e -> {
-        	Object[] datos = {
-        		    txtNombre.getText().trim(),            // 0: Nombre
-        		    txtNumeroId.getText().trim(),          // 1: Identificación
-        		    txtCorreo.getText().trim(),            // 2: Correo
-        		    txtTelefono.getText().trim(),          // 3: Teléfono
-        		    radioActivo.isSelected() ? "activo" : "inactivo", // 4: Estado
-        		    "Acciones"                             // 5: Acciones
-        		};
-        	if (esEdicion && rowIndex >= 0) {
-        	    for (int i = 0; i < datos.length; i++) {
-        	        modeloTabla.setValueAt(datos[i], rowIndex, i);
-        	    }
-        	} else {
-        	    modeloTabla.addRow(datos);
-        	}
-            dispose();
+            if (txtNombre.getText().trim().isEmpty() || txtNumeroId.getText().trim().isEmpty() ||
+                txtCorreo.getText().trim().isEmpty() || txtTelefono.getText().trim().isEmpty() ||
+                txtDireccion.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos requeridos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Persona persona = new Persona();
+            persona.setNombres(txtNombre.getText().trim());
+
+            int idTipoIdentificacion = 0;
+            String selectedTipoId = (String) comboTipoId.getSelectedItem();
+            switch (selectedTipoId) {
+                case "CC": idTipoIdentificacion = 1; break;
+                case "TI": idTipoIdentificacion = 2; break;
+                case "CE": idTipoIdentificacion = 3; break;
+                case "PAS": idTipoIdentificacion = 4; break;
+                default: idTipoIdentificacion = 1;
+            }
+            persona.setTipoIdentificacion(idTipoIdentificacion);
+
+            persona.setNumeroIdentificacion(esEdicion ? numeroIdentificacionOriginal : txtNumeroId.getText().trim());
+            persona.setCorreo(txtCorreo.getText().trim());
+            persona.setTelefono(txtTelefono.getText().trim());
+            persona.setDireccion(txtDireccion.getText().trim());
+            persona.setIdCiudad(1);
+            persona.setEstado(radioActivo.isSelected() ? Persona.Estado.activo : Persona.Estado.inactivo);
+
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí para la operación de guardar/actualizar
+                PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión en el constructor
+                if (esEdicion) {
+                    personasDAO.modificarPersona(persona, conn); // Pasa la conexión al método
+                    JOptionPane.showMessageDialog(this, "Cliente actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    personasDAO.agregarPersona(persona, conn); // Pasa la conexión al método
+                    JOptionPane.showMessageDialog(this, "Cliente guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                }
+                panelProveedoresRef.cargarDatosProveedores();
+                dispose();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                if (ex.getMessage().contains("Duplicate entry") || ex.getMessage().contains("Duplicate key")) {
+                    JOptionPane.showMessageDialog(this, "Ya existe un cliente con ese número de identificación o correo electrónico.", "Error de Datos Duplicados", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error al guardar/actualizar cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
 
         btnCancelar.addActionListener(e -> dispose());
     }
 
-    private JLabel crearEtiqueta(String texto, Font fuente) {
-        JLabel label = new JLabel(texto);
-        label.setFont(fuente);
-        return label;
+    private void agregarCampo(JPanel panel, GridBagConstraints gbc, String etiqueta, Component campo, Font labelFont) {
+        JLabel lbl = new JLabel(etiqueta);
+        lbl.setFont(labelFont);
+        panel.add(lbl, gbc);
+        gbc.gridx = 1;
+        panel.add(campo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
     }
 
-    private void estilizarBoton(JButton boton, Color fondo, Color texto) {
-        boton.setFocusPainted(false);
-        boton.setBackground(fondo);
-        boton.setForeground(texto);
-        boton.setPreferredSize(new Dimension(100, 30));
-        boton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        boton.setBorder(new LineBorder(fondo.darker(), 1));
+    private JTextField crearCampo(Font fuente) {
+        JTextField txt = new JTextField(20);
+        txt.setFont(fuente);
+        return txt;
+    }
+
+    private JComboBox<String> crearCombo(Font fuente) {
+        JComboBox<String> combo = new JComboBox<>(new String[]{"CC","TI","CE","PAS"});
+        combo.setFont(fuente);
+        return combo;
+    }
+
+    private void estilizarBoton(JButton btn, Color bg) {
+        btn.setBackground(bg);
+        btn.setForeground(Color.white);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setFocusPainted(false);
+        btn.setPreferredSize(new Dimension(100, 30));
     }
 }

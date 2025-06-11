@@ -3,7 +3,13 @@ package clasesBotones;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import formularios.FormularioEditarProveedor;
+import menuInicialAdministrador.panelProveedores;
+import DAO.PersonasDAO;
+import util.ConnectionADMIN;
 
 public class BotonEditorProveedores extends DefaultCellEditor {
     /**
@@ -15,16 +21,19 @@ public class BotonEditorProveedores extends DefaultCellEditor {
     private JTable tablaProveedores;
     private DefaultTableModel modeloTabla;
     private int currentRow;
+    private panelProveedores panelProveedoresRef;
 
-    public BotonEditorProveedores(JCheckBox checkBox, DefaultTableModel modeloTabla, JTable tablaProveedores) {
+    public BotonEditorProveedores(JCheckBox checkBox, panelProveedores panelProveedoresRef, JTable tablaProveedores) {
         super(checkBox);
         
         ToolTipManager.sharedInstance().setEnabled(true);
         // Establecer tiempo de espera para que aparezcan los tooltips
         ToolTipManager.sharedInstance().setInitialDelay(200); // milisegundos
 
-        this.modeloTabla = modeloTabla;
+        this.panelProveedoresRef = panelProveedoresRef;
+        this.modeloTabla = panelProveedoresRef.getModeloTabla();
         this.tablaProveedores = tablaProveedores;
+
 
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         btnModificar = new JButton();
@@ -58,7 +67,7 @@ public class BotonEditorProveedores extends DefaultCellEditor {
         btnEliminar.setPreferredSize(new Dimension(32, 32));
         btnImprimir.setPreferredSize(new Dimension(32, 32));
         // Eventos
-        btnModificar.addActionListener(e -> modificar(currentRow,modeloTabla));
+        btnModificar.addActionListener(e -> modificar(currentRow));
         btnEliminar.addActionListener(e -> eliminar(currentRow));
         btnImprimir.addActionListener(e -> imprimir(currentRow));
 
@@ -73,44 +82,49 @@ public class BotonEditorProveedores extends DefaultCellEditor {
         currentRow = tablaProveedores.convertRowIndexToModel(row);
         return panel;
     }
-
-    private void modificar(int row, DefaultTableModel modeloTabla) {
-    	 try {
-    	        Window parent = SwingUtilities.getWindowAncestor(tablaProveedores);
-    	        FormularioEditarProveedor dialog = new FormularioEditarProveedor(parent, modeloTabla, row);
-    	        dialog.setVisible(true);
-    	    } catch (Exception ex) {
-    	        ex.printStackTrace();
-    	        JOptionPane.showMessageDialog(null, "Error al abrir el formulario: " + ex.getMessage());
-    	    }
-    	    fireEditingStopped();
+    private void modificar(int row) {
+        try {
+            String numeroIdentificacion = (String) modeloTabla.getValueAt(row, 1);
+            Window parent = SwingUtilities.getWindowAncestor(tablaProveedores);
+            FormularioEditarProveedor dialog = new FormularioEditarProveedor(parent, panelProveedoresRef, numeroIdentificacion);
+            dialog.setVisible(true);
+            fireEditingStopped();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al abrir el formulario de modificación: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-
 
     public void eliminar(int row) {
         if (row >= 0 && row < modeloTabla.getRowCount()) {
-            int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar este empleado?", "Confirmar", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar este cliente?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                // Eliminar del modelo
-                modeloTabla.removeRow(row);
-                // No intentes acceder a modelo.getValueAt(row, ...) después de eliminar
+                String numeroIdentificacion = (String) modeloTabla.getValueAt(row, 1);
+                try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí para la operación de eliminación
+                    PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión en el constructor
+                    personasDAO.eliminarPersona(numeroIdentificacion, conn); // Pasa la conexión al método
+                    JOptionPane.showMessageDialog(null, "Cliente eliminado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    panelProveedoresRef.cargarDatosProveedores();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error al eliminar cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                }
             }
         } else {
             System.out.println("Índice de fila inválido: " + row);
         }
+        fireEditingStopped();
     }
-
 
     private void imprimir(int row) {
         String numero = modeloTabla.getValueAt(row, 1).toString();
-        JOptionPane.showMessageDialog(null, "Generar PDF para equipo: " + numero);
-        // Llamar aquí a tu método generarPDF(...)
+        JOptionPane.showMessageDialog(null, "Generar PDF para cliente: " + numero);
         fireEditingStopped();
     }
-    
+
     private ImageIcon escalarIcono(String ruta, int ancho, int alto) {
-    	ImageIcon iconoOriginal = new ImageIcon(getClass().getResource(ruta));
-    	Image imagen = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
-    	return new ImageIcon(imagen);
+        ImageIcon iconoOriginal = new ImageIcon(getClass().getResource(ruta));
+        Image imagen = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+        return new ImageIcon(imagen);
     }
 }

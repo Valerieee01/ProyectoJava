@@ -3,8 +3,13 @@ package clasesBotones;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import formularios.FormularioEditarEmpleado;
+import menuInicialAdministrador.panelEmpleados;
+import DAO.PersonasDAO;
+import util.ConnectionADMIN;
 
 public class BotonEditorEmpleados extends DefaultCellEditor {
     /**
@@ -16,6 +21,7 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
     private JTable tablaEmpleados;
     private DefaultTableModel modeloTabla;
     private int currentRow;
+    private panelEmpleados panelEmpleadosRef;
 
     public BotonEditorEmpleados(JCheckBox checkBox, DefaultTableModel modeloTabla, JTable tablaEmpleados) {
         super(checkBox);
@@ -78,8 +84,9 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
     
     private void modificar(int row, DefaultTableModel modeloTabla) {
         try {
+        	String numeroIdentificacion = (String) modeloTabla.getValueAt(row, 1);
         	 Window parent = SwingUtilities.getWindowAncestor(tablaEmpleados);
-             FormularioEditarEmpleado dialog = new FormularioEditarEmpleado(parent, modeloTabla, row);
+             FormularioEditarEmpleado dialog = new FormularioEditarEmpleado(parent, panelEmpleadosRef, numeroIdentificacion);
              dialog.setVisible(true);
              fireEditingStopped();
 	    } catch (Exception ex) {
@@ -91,24 +98,30 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
 
     public void eliminar(int row) {
         if (row >= 0 && row < modeloTabla.getRowCount()) {
-            int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar este empleado?", "Confirmar", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar este cliente?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                // Eliminar del modelo
-                modeloTabla.removeRow(row);
+                String numeroIdentificacion = (String) modeloTabla.getValueAt(row, 1);
+                try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí para la operación de eliminación
+                    PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión en el constructor
+                    personasDAO.eliminarPersona(numeroIdentificacion, conn); // Pasa la conexión al método
+                    JOptionPane.showMessageDialog(null, "Cliente eliminado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    panelEmpleadosRef.cargarDatosEmpleados();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error al eliminar cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                }
             }
         } else {
             System.out.println("Índice de fila inválido: " + row);
         }
+        fireEditingStopped();
     }
-
 
     private void imprimir(int row) {
         String numero = modeloTabla.getValueAt(row, 1).toString();
-        JOptionPane.showMessageDialog(null, "Generar PDF para equipo: " + numero);
-        // Llamar aquí a tu método generarPDF(...)
+        JOptionPane.showMessageDialog(null, "Generar PDF para cliente: " + numero);
         fireEditingStopped();
     }
-    
     private ImageIcon escalarIcono(String ruta, int ancho, int alto) {
     	ImageIcon iconoOriginal = new ImageIcon(getClass().getResource(ruta));
     	Image imagen = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);

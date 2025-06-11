@@ -112,7 +112,7 @@ public class panelEmpleados extends JPanel {
 
         try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Obtiene la conexión a la base de datos
             PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin pasar la conexión al constructor
-            List<Persona> listaPersonas = personasDAO.obtenerTodasLasPersonas(conn); // Pasa la conexión al método
+            List<Persona> listaPersonas = personasDAO.obtenerTodasLasPersonasEmpleados(conn); // Pasa la conexión al método
 
             for (Persona persona : listaPersonas) {
                 modeloTabla.addRow(new Object[]{

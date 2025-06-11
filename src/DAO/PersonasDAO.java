@@ -148,17 +148,19 @@ public class PersonasDAO {
     }
 
     /**
-     * Obtiene todos los registros de personas de la base de datos.
+     * Obtiene todos los registros de personas que son clientes de la base de datos.
      *
      * @param connection La conexión JDBC a la base de datos.
      * @return Una lista de objetos Persona.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public List<Persona> obtenerTodasLasPersonas(Connection connection) throws SQLException {
+    public List<Persona> obtenerTodasLasPersonasClientes(Connection connection) throws SQLException {
         List<Persona> personas = new ArrayList<>();
-        String sql = "SELECT id_persona, nombre_completo_razon_social, id_tipo_identificacion, " +
-                     "numero_identificacion, correo, telefono, direccion, id_ciudad, " +
-                     "estado, fecha_registro, fecha_actualizacion FROM personas";
+        String sql = "SELECT p.id_persona, p.nombre_completo_razon_social, p.id_tipo_identificacion, " +
+                "p.numero_identificacion, p.correo, p.telefono, p.direccion, p.id_ciudad, " +
+                "p.estado, p.fecha_registro, p.fecha_actualizacion " +
+                "FROM personas p " +
+                "JOIN clientes c ON c.id_cliente = p.id_persona";
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
@@ -180,4 +182,83 @@ public class PersonasDAO {
         }
         return personas;
     }
+    
+    
+    /**
+     * Obtiene todos los registros de personas que son empleados de la base de datos.
+     *
+     * @param connection La conexión JDBC a la base de datos.
+     * @return Una lista de objetos Persona.
+     * @throws SQLException Si ocurre un error al interactuar con la base de datos.
+     */
+    public List<Persona> obtenerTodasLasPersonasEmpleados(Connection connection) throws SQLException {
+        List<Persona> personas = new ArrayList<>();
+        String sql = "SELECT p.id_persona, p.nombre_completo_razon_social, p.id_tipo_identificacion, " +
+                "p.numero_identificacion, p.correo, p.telefono, p.direccion, p.id_ciudad, " +
+                "p.estado, p.fecha_registro, p.fecha_actualizacion " +
+                "FROM personas p " +
+                "JOIN empleados e ON e.id_empleado = p.id_persona";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Persona persona = new Persona();
+                persona.setIdPersona(resultSet.getInt("id_persona"));
+                persona.setNombres(resultSet.getString("nombre_completo_razon_social"));
+                persona.setTipoIdentificacion(resultSet.getInt("id_tipo_identificacion"));
+                persona.setNumeroIdentificacion(resultSet.getString("numero_identificacion"));
+                persona.setCorreo(resultSet.getString("correo"));
+                persona.setTelefono(resultSet.getString("telefono"));
+                persona.setDireccion(resultSet.getString("direccion"));
+                persona.setIdCiudad(resultSet.getInt("id_ciudad"));
+                persona.setEstado(Persona.Estado.valueOf(resultSet.getString("estado")));
+
+                personas.add(persona);
+            }
+        }
+        return personas;
+    }
+    
+    
+    
+    
+    /**
+     * Obtiene todos los registros de personas que son proveedores de la base de datos.
+     *
+     * @param connection La conexión JDBC a la base de datos.
+     * @return Una lista de objetos Persona.
+     * @throws SQLException Si ocurre un error al interactuar con la base de datos.
+     */
+    public List<Persona> obtenerTodasLasPersonasProveedores(Connection connection) throws SQLException {
+        List<Persona> personas = new ArrayList<>();
+        String sql = "SELECT p.id_persona, p.nombre_completo_razon_social, p.id_tipo_identificacion, " +
+                "p.numero_identificacion, p.correo, p.telefono, p.direccion, p.id_ciudad, " +
+                "p.estado, p.fecha_registro, p.fecha_actualizacion " +
+                "FROM personas p " +
+                "JOIN proveedores pr ON pr.id_proveedor = p.id_persona";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Persona persona = new Persona();
+                persona.setIdPersona(resultSet.getInt("id_persona"));
+                persona.setNombres(resultSet.getString("nombre_completo_razon_social"));
+                persona.setTipoIdentificacion(resultSet.getInt("id_tipo_identificacion"));
+                persona.setNumeroIdentificacion(resultSet.getString("numero_identificacion"));
+                persona.setCorreo(resultSet.getString("correo"));
+                persona.setTelefono(resultSet.getString("telefono"));
+                persona.setDireccion(resultSet.getString("direccion"));
+                persona.setIdCiudad(resultSet.getInt("id_ciudad"));
+                persona.setEstado(Persona.Estado.valueOf(resultSet.getString("estado")));
+
+                personas.add(persona);
+            }
+        }
+        return personas;
+    }
+    
+    
+    
 }

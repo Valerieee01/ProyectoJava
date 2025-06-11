@@ -193,7 +193,7 @@ public class FormularioEditarCliente extends JDialog {
                     personasDAO.modificarPersona(persona, conn); // Pasa la conexión al método
                     JOptionPane.showMessageDialog(this, "Cliente actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    personasDAO.agregarPersona(persona, conn); // Pasa la conexión al método
+                    personasDAO.almacenarCliente(conn, persona); // Pasa la conexión al método
                     JOptionPane.showMessageDialog(this, "Cliente guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 }
                 panelClientesRef.cargarDatosClientes();

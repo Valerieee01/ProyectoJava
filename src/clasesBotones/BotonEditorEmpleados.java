@@ -23,14 +23,15 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
     private int currentRow;
     private panelEmpleados panelEmpleadosRef;
 
-    public BotonEditorEmpleados(JCheckBox checkBox, DefaultTableModel modeloTabla, JTable tablaEmpleados) {
+    public BotonEditorEmpleados(JCheckBox checkBox, panelEmpleados panelEmpleadosRef, JTable tablaEmpleados) {
         super(checkBox);
         
         ToolTipManager.sharedInstance().setEnabled(true);
         // Establecer tiempo de espera para que aparezcan los tooltips
         ToolTipManager.sharedInstance().setInitialDelay(200); // milisegundos
 
-        this.modeloTabla = modeloTabla;
+        this.panelEmpleadosRef = panelEmpleadosRef;
+        this.modeloTabla = panelEmpleadosRef.getModeloTabla();
         this.tablaEmpleados = tablaEmpleados;
 
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
@@ -93,7 +94,6 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
 	        ex.printStackTrace();
 	        JOptionPane.showMessageDialog(null, "Error al abrir el formulario: " + ex.getMessage());
 	    }
-	    fireEditingStopped();
     }
 
     public void eliminar(int row) {
@@ -114,7 +114,6 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
         } else {
             System.out.println("Índice de fila inválido: " + row);
         }
-        fireEditingStopped();
     }
 
     private void imprimir(int row) {

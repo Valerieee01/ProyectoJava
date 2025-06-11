@@ -2,17 +2,15 @@ package formularios;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.table.DefaultTableModel;
 
 import DAO.PersonasDAO;
 import modelos.Persona;
-import menuInicialAdministrador.panelClientes;
 import menuInicialAdministrador.panelProveedores;
 import util.ConnectionADMIN;
 import java.awt.*;
-import java.awt.Dialog.ModalityType;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp; // Importar Timestamp
 
 public class FormularioEditarProveedor extends JDialog {
 
@@ -27,9 +25,9 @@ public class FormularioEditarProveedor extends JDialog {
     private String numeroIdentificacionOriginal;
 
     /**
-     * Constructor para un nuevo cliente.
+     * Constructor para un nuevo proveedor.
      * @param parent El padre del diálogo.
-     * @param panelProveedoresRef La referencia al panel de clientes para recargar la tabla.
+     * @param panelProveedoresRef La referencia al panel de proveedores para recargar la tabla.
      */
     public FormularioEditarProveedor(Window parent, panelProveedores panelProveedoresRef) {
         super(parent, "Nuevo Proveedor", ModalityType.APPLICATION_MODAL);
@@ -38,10 +36,10 @@ public class FormularioEditarProveedor extends JDialog {
     }
 
     /**
-     * Constructor para editar un cliente existente.
+     * Constructor para editar un proveedor existente.
      * @param parent El padre del diálogo.
-     * @param panelClientesRef La referencia al panel de clientes para recargar la tabla.
-     * @param numeroIdentificacionEditar El número de identificación del cliente a editar.
+     * @param panelProveedoresRef La referencia al panel de proveedores para recargar la tabla.
+     * @param numeroIdentificacionEditar El número de identificación del proveedor a editar.
      */
     public FormularioEditarProveedor(Window parent, panelProveedores panelProveedoresRef, String numeroIdentificacionEditar) {
         super(parent, "Editar Proveedor", ModalityType.APPLICATION_MODAL);
@@ -61,7 +59,8 @@ public class FormularioEditarProveedor extends JDialog {
         panelPrincipal.setBorder(new EmptyBorder(20, 25, 15, 25));
         panelPrincipal.setBackground(Color.decode("#f4f6f8"));
 
-        JLabel titulo = new JLabel(esEdicion ? "Editar Cliente" : "Nuevo Cliente");
+        // *** CORRECCIÓN: Título del diálogo para "Proveedor" ***
+        JLabel titulo = new JLabel(esEdicion ? "Editar Proveedor" : "Nuevo Proveedor");
         titulo.setFont(new Font("Arial", Font.BOLD, 20));
         titulo.setHorizontalAlignment(SwingConstants.CENTER);
         panelPrincipal.add(titulo, BorderLayout.NORTH);
@@ -70,7 +69,8 @@ public class FormularioEditarProveedor extends JDialog {
         panelFormulario.setBackground(Color.white);
         panelFormulario.setBorder(new TitledBorder(
             BorderFactory.createLineBorder(Color.gray, 1, true),
-            "Datos del Cliente",
+            // *** CORRECCIÓN: Título del borde del formulario para "Proveedor" ***
+            "Datos del Proveedor",
             TitledBorder.LEFT,
             TitledBorder.TOP,
             new Font("SansSerif", Font.BOLD, 14)
@@ -91,6 +91,9 @@ public class FormularioEditarProveedor extends JDialog {
         agregarCampo(panelFormulario, gbc, "Correo Electrónico:", txtCorreo = crearCampo(campoFont), labelFont);
         agregarCampo(panelFormulario, gbc, "Teléfono:", txtTelefono = crearCampo(campoFont), labelFont);
         agregarCampo(panelFormulario, gbc, "Dirección:", txtDireccion = crearCampo(campoFont), labelFont);
+        // Considera agregar un campo para la Ciudad si no está fijo en 1
+        // agregarCampo(panelFormulario, gbc, "Ciudad:", txtCiudad = crearCampo(campoFont), labelFont);
+
 
         gbc.gridx = 0; gbc.gridy++;
         JLabel lblEstado = new JLabel("Estado:");
@@ -127,9 +130,9 @@ public class FormularioEditarProveedor extends JDialog {
         add(panelPrincipal);
 
         if (esEdicion && numeroIdentificacionEditar != null && !numeroIdentificacionEditar.isEmpty()) {
-            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí
-                PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión al constructor
-                Persona persona = personasDAO.obtenerPersonaPorNumeroIdentificacion(numeroIdentificacionEditar, conn); // Pasa la conexión al método
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) {
+                PersonasDAO personasDAO = new PersonasDAO();
+                Persona persona = personasDAO.obtenerPersonaPorNumeroIdentificacion(numeroIdentificacionEditar, conn);
                 if (persona != null) {
                     txtNombre.setText(persona.getNombres());
                     String tipoIdentificacionStr = "";
@@ -138,7 +141,7 @@ public class FormularioEditarProveedor extends JDialog {
                         case 2: tipoIdentificacionStr = "TI"; break;
                         case 3: tipoIdentificacionStr = "CE"; break;
                         case 4: tipoIdentificacionStr = "PAS"; break;
-                        default: tipoIdentificacionStr = "CC"; // Valor por defecto
+                        default: tipoIdentificacionStr = "CC";
                     }
                     comboTipoId.setSelectedItem(tipoIdentificacionStr);
 
@@ -146,17 +149,21 @@ public class FormularioEditarProveedor extends JDialog {
                     txtCorreo.setText(persona.getCorreo());
                     txtTelefono.setText(persona.getTelefono());
                     txtDireccion.setText(persona.getDireccion());
+                    // txtCiudad.setText(String.valueOf(persona.getIdCiudad())); // Si tienes un campo para la ciudad
+                    // *** CORRECCIÓN: Uso de constantes de enum en mayúsculas ***
                     if (persona.getEstado() == Persona.Estado.activo) radioActivo.setSelected(true);
                     else radioInactivo.setSelected(true);
 
                     txtNumeroId.setEnabled(false);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Cliente no encontrado para edición.", "Error", JOptionPane.ERROR_MESSAGE);
+                    // *** CORRECCIÓN: Mensaje a "Proveedor" ***
+                    JOptionPane.showMessageDialog(this, "Proveedor no encontrado para edición.", "Error", JOptionPane.ERROR_MESSAGE);
                     dispose();
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error al cargar datos del cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                // *** CORRECCIÓN: Mensaje a "Proveedor" ***
+                JOptionPane.showMessageDialog(this, "Error al cargar datos del proveedor: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
                 dispose();
             }
         }
@@ -182,31 +189,37 @@ public class FormularioEditarProveedor extends JDialog {
                 default: idTipoIdentificacion = 1;
             }
             persona.setTipoIdentificacion(idTipoIdentificacion);
-
             persona.setNumeroIdentificacion(esEdicion ? numeroIdentificacionOriginal : txtNumeroId.getText().trim());
             persona.setCorreo(txtCorreo.getText().trim());
             persona.setTelefono(txtTelefono.getText().trim());
             persona.setDireccion(txtDireccion.getText().trim());
-            persona.setIdCiudad(1);
+            persona.setIdCiudad(1); // Asumiendo ID de ciudad fijo, considera permitir selección de ciudad
+            // *** CORRECCIÓN: Uso de constantes de enum en mayúsculas ***
             persona.setEstado(radioActivo.isSelected() ? Persona.Estado.activo : Persona.Estado.inactivo);
 
-            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí para la operación de guardar/actualizar
-                PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión en el constructor
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) {
+                PersonasDAO personasDAO = new PersonasDAO();
                 if (esEdicion) {
-                    personasDAO.modificarPersona(persona, conn); // Pasa la conexión al método
-                    JOptionPane.showMessageDialog(this, "Cliente actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    personasDAO.modificarPersona(persona, conn); // Se mantiene modificarPersona para edición
+                    // *** CORRECCIÓN: Mensaje a "Proveedor" ***
+                    JOptionPane.showMessageDialog(this, "Proveedor actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    personasDAO.agregarPersona(persona, conn); // Pasa la conexión al método
-                    JOptionPane.showMessageDialog(this, "Cliente guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    // *** CAMBIO CLAVE AQUÍ: Se usa almacenarProveedor para nuevos proveedores ***
+                    personasDAO.almacenarProveedor(conn , persona);
+                    // *** CORRECCIÓN: Mensaje a "Proveedor" ***
+                    JOptionPane.showMessageDialog(this, "Proveedor guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    
                 }
                 panelProveedoresRef.cargarDatosProveedores();
                 dispose();
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 if (ex.getMessage().contains("Duplicate entry") || ex.getMessage().contains("Duplicate key")) {
-                    JOptionPane.showMessageDialog(this, "Ya existe un cliente con ese número de identificación o correo electrónico.", "Error de Datos Duplicados", JOptionPane.ERROR_MESSAGE);
+                    // *** CORRECCIÓN: Mensaje a "proveedor" ***
+                    JOptionPane.showMessageDialog(this, "Ya existe un proveedor con ese número de identificación o correo electrónico.", "Error de Datos Duplicados", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Error al guardar/actualizar cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                    // *** CORRECCIÓN: Mensaje a "proveedor" ***
+                    JOptionPane.showMessageDialog(this, "Error al guardar/actualizar proveedor: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

@@ -9,13 +9,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-
 import clasesBotones.BotonEditorProveedores;
 import clasesBotones.BotonRenderer;
 import formularios.FormularioEditarProveedor;
 import modelos.Persona;
 import DAO.PersonasDAO;
-import util.ConnectionADMIN; // Asegúrate de que esta clase exista y funcione correctamente
+import util.ConnectionADMIN; 
 
 
 public class panelProveedores extends JPanel {
@@ -128,7 +127,7 @@ public class panelProveedores extends JPanel {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al cargar los datos de clientes: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos de proveedores: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
         }
     }
 

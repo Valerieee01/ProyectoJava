@@ -103,11 +103,11 @@ public class BotonEditorProveedores extends DefaultCellEditor {
                 try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Abre la conexión aquí para la operación de eliminación
                     PersonasDAO personasDAO = new PersonasDAO(); // Crea el DAO sin conexión en el constructor
                     personasDAO.eliminarPersona(numeroIdentificacion, conn); // Pasa la conexión al método
-                    JOptionPane.showMessageDialog(null, "Cliente eliminado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Proveedor eliminado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                     panelProveedoresRef.cargarDatosProveedores();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Error al eliminar cliente: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Error al eliminar Proveedor: " + ex.getMessage(), "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
                 }
             }
         } else {
@@ -118,7 +118,7 @@ public class BotonEditorProveedores extends DefaultCellEditor {
 
     private void imprimir(int row) {
         String numero = modeloTabla.getValueAt(row, 1).toString();
-        JOptionPane.showMessageDialog(null, "Generar PDF para cliente: " + numero);
+        JOptionPane.showMessageDialog(null, "Generar PDF para Proveedor: " + numero);
         fireEditingStopped();
     }
 

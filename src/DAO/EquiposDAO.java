@@ -1,6 +1,5 @@
 package DAO;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet; // Necesario para métodos de lectura (ej. obtenerEquipoPorId)
@@ -10,7 +9,7 @@ import java.util.List;
 
 import modelos.Equipo;
 // Importa la clase de conexión que usas
-import util.ConnectionDBA;
+// import util.ConnectionDBA; // Ya no se importa aquí si la conexión se pasa por parámetro
 
 /**
  * Clase Data Access Object (DAO) para la entidad Equipo.
@@ -18,16 +17,16 @@ import util.ConnectionDBA;
  * permitiendo la creación, modificación, eliminación y consulta de registros de equipos.
  */
 public class EquiposDAO {
-		private static Connection connection;
+    // La conexión no debe ser estática para evitar problemas de concurrencia.
+    // Se debe pasar como parámetro a los métodos o usar un pool de conexiones.
+    // private static Connection connection; 
 
     /**
      * Constructor de EquipoDAO.
-     * Recibe una conexión a la base de datos que será utilizada para todas las operaciones.
-     *
-     * @param connection La conexión JDBC a la base de datos.
+     * Ya no necesita recibir una conexión si los métodos la reciben como parámetro.
      */
-    public EquiposDAO(Connection connection) {
-        this.connection = connection;
+    public EquiposDAO() {
+        // No se necesita inicializar la conexión aquí si se pasa a cada método.
     }
 
     /**
@@ -37,9 +36,10 @@ public class EquiposDAO {
      * por lo que no se incluyen en la sentencia SQL INSERT.
      *
      * @param equipo El objeto Equipo a insertar, con los datos necesarios.
+     * @param connection La conexión JDBC a la base de datos.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public static void agregarEquipo(Equipo equipo) throws SQLException {
+    public void agregarEquipo(Equipo equipo, Connection connection) throws SQLException { // Eliminar 'static'
         // SQL para la inserción. Las columnas auto-generadas y con DEFAULT se omiten explícitamente aquí.
         String sql = "INSERT INTO equipos (numero_equipo, placa, descripcion, id_cliente) " +
                      "VALUES (?, ?, ?, ?)";
@@ -71,9 +71,10 @@ public class EquiposDAO {
      *
      * @param equipo El objeto Equipo con los datos actualizados.
      * El campo 'idEquipo' del objeto debe estar establecido para identificar el registro a modificar.
+     * @param connection La conexión JDBC a la base de datos.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public static void modificarEquipo(Equipo equipo) throws SQLException {
+    public void modificarEquipo(Equipo equipo, Connection connection) throws SQLException { // Eliminar 'static'
         // SQL para la actualización. Se actualizan los campos modificables.
         // id_equipo se usa en la cláusula WHERE para identificar el registro a actualizar.
         String sql = "UPDATE equipos SET numero_equipo = ?, placa = ?, " +
@@ -103,9 +104,10 @@ public class EquiposDAO {
      * Elimina un registro de equipo de la base de datos por su ID.
      *
      * @param idEquipo El ID del equipo a eliminar.
+     * @param connection La conexión JDBC a la base de datos.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public void eliminarEquipo(int idEquipo) throws SQLException {
+    public void eliminarEquipo(int idEquipo, Connection connection) throws SQLException { // Añadir 'connection'
         // SQL para la eliminación.
         String sql = "DELETE FROM equipos WHERE id_equipo = ?";
 
@@ -131,10 +133,11 @@ public class EquiposDAO {
      * a partir de los resultados de la consulta.
      *
      * @param idEquipo El ID del equipo a buscar.
+     * @param connection La conexión JDBC a la base de datos.
      * @return Un objeto Equipo si se encuentra un registro con ese ID, o null si no se encuentra.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public Equipo obtenerEquipoPorId(int idEquipo) throws SQLException {
+    public Equipo obtenerEquipoPorId(int idEquipo, Connection connection) throws SQLException { // Añadir 'connection'
         String sql = "SELECT id_equipo, numero_equipo, placa, descripcion, id_cliente FROM equipos WHERE id_equipo = ?";
         Equipo equipo = null; // Se inicializa a null, se asignará si se encuentra un registro.
 
@@ -160,14 +163,14 @@ public class EquiposDAO {
         return equipo; // Retorna el objeto Equipo (o null si no se encontró).
     }
     
- // --- NUEVO MÉTODO PARA OBTENER TODOS LOS EQUIPOS ---
     /**
      * Obtiene todos los registros de equipos de la base de datos.
      *
+     * @param connection La conexión JDBC a la base de datos.
      * @return Una lista de objetos Equipo, o una lista vacía si no hay equipos.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public static List<Equipo> obtenerTodosLosEquipos() throws SQLException {
+    public List<Equipo> obtenerTodosLosEquipos(Connection connection) throws SQLException { // Eliminar 'static' y añadir 'connection'
         List<Equipo> equipos = new ArrayList<>();
         String sql = "SELECT id_equipo, numero_equipo, placa, descripcion, id_cliente FROM equipos";
 
@@ -186,6 +189,4 @@ public class EquiposDAO {
         }
         return equipos; // Retorna la lista de equipos
     }
-
-	
 }

@@ -3,11 +3,13 @@ package clasesBotones;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.Connection; // Importar Connection
 import java.sql.SQLException; // Importar SQLException
 
 import formularios.FormularioEditar;
 import DAO.EquiposDAO; // Importar tu DAO
 import menuInicialAdministrador.panelEquipos; // Importar el panel para refrescar la tabla
+import util.ConnectionADMIN; // ¡Importar tu clase de conexión!
 
 public class BotonEditorEquipos extends DefaultCellEditor {
     private static final long serialVersionUID = 1L;
@@ -112,19 +114,16 @@ public class BotonEditorEquipos extends DefaultCellEditor {
 
     // --- Lógica del botón Eliminar ---
     public void eliminar(int row) {
-        fireEditingStopped(); // Detener la edición de la celda
-        int idEquipo1 = (int) modeloTabla.getValueAt(row, 0); 
-
         if (row >= 0 && row < modeloTabla.getRowCount()) {
             int confirm = JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar este equipo?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                try {
+                try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // ¡Obtener la conexión aquí!
                     // Obtener el ID del equipo de la primera columna del modelo
                     // Asumiendo que la columna 0 contiene el ID_EQUIPO de la base de datos
                     int idEquipo = (int) modeloTabla.getValueAt(row, 0); 
 
-                    // Llamar al método eliminarEquipo del DAO
-                    equiposDAO.eliminarEquipo(idEquipo);
+                    // Llamar al método eliminarEquipo del DAO, pasando la conexión
+                    equiposDAO.eliminarEquipo(idEquipo, conn); // ¡Ahora se pasa la conexión!
 
                     // Mensaje de éxito
                     JOptionPane.showMessageDialog(null, "Equipo eliminado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -151,11 +150,13 @@ public class BotonEditorEquipos extends DefaultCellEditor {
         } else {
             System.out.println("Índice de fila inválido para eliminar: " + row);
         }
+        // ¡IMPORTANTE! Se elimina fireEditingStopped() de aquí.
+        // El editor de celda se detendrá naturalmente cuando la tabla se recargue.
     }
 
     // --- Lógica del botón Imprimir ---
     private void imprimir(int row) {
-        fireEditingStopped(); // Detener la edición de la celda
+        // ¡IMPORTANTE! Se elimina fireEditingStopped() de aquí.
         if (row >= 0 && row < modeloTabla.getRowCount()) {
             String numeroEquipo = modeloTabla.getValueAt(row, 1).toString(); // Asumiendo columna 1 es "Número"
             String placa = modeloTabla.getValueAt(row, 2).toString();       // Asumiendo columna 2 es "Placa"

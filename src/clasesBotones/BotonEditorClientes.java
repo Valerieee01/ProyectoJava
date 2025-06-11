@@ -108,7 +108,6 @@ public class BotonEditorClientes extends DefaultCellEditor {
         } else {
             System.out.println("Índice de fila inválido: " + row);
         }
-        fireEditingStopped();
     }
 
     private void imprimir(int row) {

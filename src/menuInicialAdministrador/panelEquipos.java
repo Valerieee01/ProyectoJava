@@ -14,7 +14,8 @@ import clasesBotones.BotonRenderer;     // Asegúrate de que esta clase exista y
 import formularios.FormularioEditar;    // Importa tu formulario de edición
 import DAO.EquiposDAO;                  // Importa tu DAO de equipos
 import modelos.Equipo;                  // Importa tu modelo Equipo
-import util.ConnectionADMIN;			// Importa tu clase de conexión a la base de datos
+import util.ConnectionADMIN;
+import util.ConnectionDBA;              // Importa tu clase de conexión a la base de datos (¡usar esta en lugar de ConnectionADMIN si es el caso!)
 
 /**
  * Panel que muestra una tabla de equipos, con funcionalidades para agregar,
@@ -26,7 +27,8 @@ public class panelEquipos extends JPanel {
     private JTable tablaEquipos_1;
     private DefaultTableModel modeloTabla;
     private EquiposDAO equiposDAO; // Instancia del DAO para interactuar con la DB
-    private Connection dbConnection; // La conexión a la base de datos
+    // La conexión no debe ser un campo de clase si cada método la va a gestionar.
+    // Se elimina 'private Connection dbConnection;' o se mantiene solo para inicialización.
 
     public panelEquipos() {
         // Establece el layout principal del panel a BorderLayout
@@ -36,23 +38,8 @@ public class panelEquipos extends JPanel {
         JButton btnNuevoEquipo = new JButton("Nuevo Equipo");
         btnNuevoEquipo.setToolTipText("Ingresa tu nuevo equipo aquí");
         btnNuevoEquipo.setForeground(Color.WHITE);
-        btnNuevoEquipo.addActionListener(e -> {
-            Window parent = SwingUtilities.getWindowAncestor(this); // Obtiene la ventana padre
-            if (equiposDAO != null) {
-                // Pasa el modelo, el DAO y una referencia a sí mismo (este panel) al FormularioEditar
-                // para que pueda agregar, refrescar la tabla y usar el DAO.
-                FormularioEditar dialog = new FormularioEditar(parent, modeloTabla, equiposDAO, this);
-                dialog.setVisible(true); // Hace visible el diálogo
-            } else {
-                 JOptionPane.showMessageDialog(this,
-                    "La base de datos no está disponible. No se puede agregar un equipo.",
-                    "Error de Aplicación",
-                    JOptionPane.WARNING_MESSAGE);
-            }
-        });
         btnNuevoEquipo.setBackground(new Color(255, 146, 94)); // Un color naranja cálido
-        add(btnNuevoEquipo, BorderLayout.NORTH); // Añade el botón en la parte superior
-
+        
         // --- Configuración del Modelo de la Tabla ---
         // Se definen las columnas de la tabla. "ID Equipo" se añade para almacenar el ID real de la DB.
         modeloTabla = new DefaultTableModel(
@@ -115,6 +102,10 @@ public class panelEquipos extends JPanel {
         // Configuración de la altura de las filas y los renderers/editores de celda
         tablaEquipos_1.setRowHeight(35);
         tablaEquipos_1.getColumn("Acciones").setCellRenderer(new BotonRenderer(tablaEquipos_1));
+        
+        // --- Inicialización del DAO aquí ---
+        equiposDAO = new EquiposDAO(); // Crea una instancia del DAO (ya no estática)
+
         // Aquí es crucial pasar 'this' (la instancia de panelEquipos) al editor,
         // para que BotonEditorEquipos pueda llamar a 'cargarEquiposEnTabla'
         // después de una operación de eliminación o modificación.
@@ -123,45 +114,19 @@ public class panelEquipos extends JPanel {
         // Añade la tabla a un JScrollPane para que sea desplazable si hay muchas filas
         add(new JScrollPane(tablaEquipos_1), BorderLayout.CENTER);
 
-        // --- Inicialización de la Conexión a la Base de Datos y el DAO ---
-        try {
-            dbConnection = ConnectionADMIN.getConnectionADMIN(); // Obtiene la conexión
-            if (dbConnection != null) {
-                equiposDAO = new EquiposDAO(dbConnection); // Crea la instancia del DAO
-                cargarEquiposEnTabla(); // Carga los datos en la tabla al inicio del panel
-            } else {
-                // Si la conexión es null, muestra un mensaje y deshabilita funcionalidades de DB
-                JOptionPane.showMessageDialog(this,
-                        "No se pudo establecer conexión con la base de datos.",
-                        "Error de Conexión",
-                        JOptionPane.ERROR_MESSAGE);
-                btnNuevoEquipo.setEnabled(false); // Deshabilita el botón si no hay DB
-            }
-        } catch (SQLException e) {
-            // Captura cualquier error SQL durante la conexión o inicialización del DAO
-            JOptionPane.showMessageDialog(this,
-                    "Error al conectar con la base de datos o al inicializar: " + e.getMessage(),
-                    "Error de Base de Datos",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace(); // Imprime el stack trace para depuración
-            btnNuevoEquipo.setEnabled(false); // Deshabilita el botón
-        }
+        // --- Carga inicial de datos ---
+        cargarEquiposEnTabla(); // Carga los datos en la tabla al inicio del panel
+
 
         // --- Acción del Botón "Nuevo Equipo" ---
         btnNuevoEquipo.addActionListener(e -> {
             Window parent = SwingUtilities.getWindowAncestor(this); // Obtiene la ventana padre
-            if (equiposDAO != null) {
-                // Pasa el modelo, el DAO y una referencia a sí mismo (este panel) al FormularioEditar
-                // para que pueda agregar, refrescar la tabla y usar el DAO.
-                FormularioEditar dialog = new FormularioEditar(parent, modeloTabla, equiposDAO, this);
-                dialog.setVisible(true); // Hace visible el diálogo
-            } else {
-                 JOptionPane.showMessageDialog(this,
-                    "La base de datos no está disponible. No se puede agregar un equipo.",
-                    "Error de Aplicación",
-                    JOptionPane.WARNING_MESSAGE);
-            }
+            // Pasa el modelo, el DAO y una referencia a sí mismo (este panel) al FormularioEditar
+            // para que pueda agregar, refrescar la tabla y usar el DAO.
+            FormularioEditar dialog = new FormularioEditar(parent, modeloTabla, equiposDAO, this);
+            dialog.setVisible(true); // Hace visible el diálogo
         });
+        add(btnNuevoEquipo, BorderLayout.NORTH); // Añade el botón en la parte superior
     }
 
     /**
@@ -173,9 +138,9 @@ public class panelEquipos extends JPanel {
         // Limpia todas las filas existentes en el modelo de la tabla
         modeloTabla.setRowCount(0); 
 
-        try {
+        try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // ¡Obtener la conexión aquí para esta operación!
             // Obtiene la lista de objetos Equipo desde la base de datos usando el DAO
-            List<Equipo> equipos = EquiposDAO.obtenerTodosLosEquipos(); 
+            List<Equipo> equipos = equiposDAO.obtenerTodosLosEquipos(conn); // ¡Pasar la conexión!
             
             // Itera sobre cada equipo en la lista
             for (Equipo equipo : equipos) {
@@ -187,7 +152,7 @@ public class panelEquipos extends JPanel {
                     equipo.getPlaca(),        // Columna 2: Placa
                     equipo.getDescripcion(),  // Columna 3: Descripción
                     equipo.getIdCliente(),    // Columna 4: ID Cliente
-                    // La columna 5 ("Acciones") se llenará automáticamente con los botones por el CellRenderer
+                    ""                        // Columna 5: Acciones (el CellRenderer se encargará de los botones)
                 });
             }
         } catch (SQLException e) {
@@ -200,17 +165,6 @@ public class panelEquipos extends JPanel {
         }
     }
 
-    // Opcional: Método para cerrar la conexión cuando el panel ya no sea necesario
-    // Es una buena práctica, pero depende de cómo manejas el ciclo de vida de tu aplicación.
-    public void closeConnection() {
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-                System.out.println("Conexión a la base de datos cerrada desde panelEquipos.");
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar la conexión de la base de datos: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
+    // Ya no es necesario un método closeConnection aquí si las conexiones se gestionan con try-with-resources
+    // en cada operación del DAO.
 }

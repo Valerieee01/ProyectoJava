@@ -8,8 +8,11 @@ import javax.swing.table.DefaultTableModel;
 import DAO.EquiposDAO; // Importar tu DAO
 import menuInicialAdministrador.panelEquipos; // Importar el panel para recargar la tabla
 import modelos.Equipo; // Importar tu modelo Equipo
+import util.ConnectionADMIN;
+import util.ConnectionDBA; // Importar la clase de conexión para usarla al guardar
 
 import java.awt.*;
+import java.sql.Connection; // Importar Connection
 import java.sql.SQLException; // Manejar excepciones de SQL
 
 public class FormularioEditar extends JDialog {
@@ -137,13 +140,13 @@ public class FormularioEditar extends JDialog {
             // Crear o actualizar el objeto Equipo
             Equipo equipo = new Equipo(numeroEquipo, placa, descripcion, idCliente);
 
-            try {
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { // Obtener la conexión aquí
                 if (esEdicion) {
                     equipo.setIdEquipo(idEquipoAEditar); // Establecer el ID del equipo a editar
-                    EquiposDAO.modificarEquipo(equipo); // Llamada NO estática
+                    equiposDAO.modificarEquipo(equipo, conn); // Pasar la conexión
                     JOptionPane.showMessageDialog(this, "Equipo modificado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    EquiposDAO.agregarEquipo(equipo); // Llamada NO estática
+                    equiposDAO.agregarEquipo(equipo, conn); // Pasar la conexión
                     JOptionPane.showMessageDialog(this, "Equipo agregado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 }
                 

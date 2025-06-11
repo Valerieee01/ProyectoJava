@@ -4,13 +4,11 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.Dialog.ModalityType;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import DAO.PersonasDAO;
 import modelos.Persona;
-import menuInicialAdministrador.panelClientes;
 import menuInicialAdministrador.panelEmpleados;
 import util.ConnectionADMIN;
 
@@ -40,7 +38,7 @@ public class FormularioEditarEmpleado extends JDialog {
     /**
      * Constructor para editar un cliente existente.
      * @param parent El padre del diálogo.
-     * @param panelEmpleadosRef La referencia al panel de clientes para recargar la tabla.
+     * @param panelEmpleadosRef La referencia al panel de empleados para recargar la tabla.
      * @param numeroIdentificacionEditar El número de identificación del cliente a editar.
      */
     public FormularioEditarEmpleado(Window parent, panelEmpleados panelEmpleadosRef, String numeroIdentificacionEditar) {
@@ -196,7 +194,7 @@ public class FormularioEditarEmpleado extends JDialog {
                     personasDAO.modificarPersona(persona, conn); // Pasa la conexión al método
                     JOptionPane.showMessageDialog(this, "Cliente actualizado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    personasDAO.agregarPersona(persona, conn); // Pasa la conexión al método
+                    personasDAO.almacenarEmpleado(conn, persona); // Pasa la conexión al método
                     JOptionPane.showMessageDialog(this, "Cliente guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 }
                 panelEmpleadosRef.cargarDatosEmpleados();

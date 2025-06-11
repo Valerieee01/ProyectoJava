@@ -89,7 +89,7 @@ public class panelEmpleados extends JPanel {
 
         tablaEmpleado.setRowHeight(35);
         tablaEmpleado.getColumn("Acciones").setCellRenderer(new BotonRenderer(tablaEmpleado));
-        tablaEmpleado.getColumn("Acciones").setCellEditor(new BotonEditorEmpleados(new JCheckBox(), modeloTabla, tablaEmpleado));
+        tablaEmpleado.getColumn("Acciones").setCellEditor(new BotonEditorEmpleados(new JCheckBox(), this, tablaEmpleado));
 
         add(new JScrollPane(tablaEmpleado), BorderLayout.CENTER);
 

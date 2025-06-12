@@ -5,11 +5,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-import DAO.EquiposDAO; // Importar tu DAO
-import menuInicialAdministrador.panelEquipos; // Importar el panel para recargar la tabla
-import modelos.Equipo; // Importar tu modelo Equipo
+import DAO.EquiposDAO;
+import menuInicialAdministrador.panelEquipos; 
+import modelos.Equipo; 
 import util.ConnectionADMIN;
-import util.ConnectionDBA; // Importar la clase de conexión para usarla al guardar
 
 import java.awt.*;
 import java.sql.Connection; // Importar Connection
@@ -23,7 +22,7 @@ public class FormularioEditar extends JDialog {
     private JButton btnGuardar, btnCancelar;
 
     private DefaultTableModel modeloTabla; // Referencia al modelo de la tabla
-    private EquiposDAO equiposDAO;        // Referencia a tu DAO
+    private EquiposDAO equiposDAO;        // Referencia  DAO
     private panelEquipos panelEquiposRef; // Referencia al panel para refrescar la tabla
     private boolean esEdicion;            // Indica si es modo edición
     private int filaSeleccionada;         // Índice de la fila en modo edición

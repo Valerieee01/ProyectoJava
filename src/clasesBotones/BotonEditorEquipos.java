@@ -3,13 +3,15 @@ package clasesBotones;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.Connection; // Importar Connection
-import java.sql.SQLException; // Importar SQLException
+import java.io.File;
+import java.sql.Connection; 
+import java.sql.SQLException; 
 
 import formularios.FormularioEditar;
-import DAO.EquiposDAO; // Importar tu DAO
-import menuInicialAdministrador.panelEquipos; // Importar el panel para refrescar la tabla
-import util.ConnectionADMIN; // ¡Importar tu clase de conexión!
+import DAO.EquiposDAO; 
+import menuInicialAdministrador.panelEquipos;
+import modelos.Equipo;
+import util.ConnectionADMIN; 
 
 public class BotonEditorEquipos extends DefaultCellEditor {
     private static final long serialVersionUID = 1L;
@@ -32,8 +34,8 @@ public class BotonEditorEquipos extends DefaultCellEditor {
 
         this.modeloTabla = modeloTabla;
         this.tablaEquipos = tablaEquipos;
-        this.equiposDAO = equiposDAO; // Asignar la instancia del DAO
-        this.panelEquiposRef = panelEquiposRef; // Asignar la referencia al panel
+        this.equiposDAO = equiposDAO; 
+        this.panelEquiposRef = panelEquiposRef; 
 
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         
@@ -150,22 +152,55 @@ public class BotonEditorEquipos extends DefaultCellEditor {
         } else {
             System.out.println("Índice de fila inválido para eliminar: " + row);
         }
-        // ¡IMPORTANTE! Se elimina fireEditingStopped() de aquí.
-        // El editor de celda se detendrá naturalmente cuando la tabla se recargue.
+     
     }
 
-    // --- Lógica del botón Imprimir ---
-    private void imprimir(int row) {
-        // ¡IMPORTANTE! Se elimina fireEditingStopped() de aquí.
-        if (row >= 0 && row < modeloTabla.getRowCount()) {
-            String numeroEquipo = modeloTabla.getValueAt(row, 1).toString(); // Asumiendo columna 1 es "Número"
-            String placa = modeloTabla.getValueAt(row, 2).toString();       // Asumiendo columna 2 es "Placa"
 
-            JOptionPane.showMessageDialog(null, "Generar PDF para el equipo:\n" + 
-                                                "Número: " + numeroEquipo + "\n" +
-                                                "Placa: " + placa, "Imprimir Equipo", JOptionPane.INFORMATION_MESSAGE);
-            // Aquí llamarías a tu método para generar el PDF, por ejemplo:
-            // miGeneradorPDF.generarReporteEquipo(numeroEquipo, placa, ...);
+ // --- Lógica del botón Imprimir---
+    private void imprimir(int row) {
+        if (row >= 0 && row < modeloTabla.getRowCount()) {
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { 
+                int idEquipo = (int) modeloTabla.getValueAt(row, 0); // Obtener el ID del equipo
+
+                // Obtener el objeto Equipo completo desde la base de datos
+                Equipo equipo = equiposDAO.obtenerEquipoPorId(idEquipo, conn);
+
+                if (equipo != null) {
+                    // --- Iniciar JFileChooser para seleccionar la ubicación de guardado ---
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Guardar PDF del Equipo");
+                    fileChooser.setSelectedFile(new File("reporte_equipo_" + equipo.getNumeroEquipo() + ".pdf")); // Nombre por defecto
+
+                    int userSelection = fileChooser.showSaveDialog(panel); // Mostrar el diálogo de guardar
+                    if (userSelection == JFileChooser.APPROVE_OPTION) {
+                        File fileToSave = fileChooser.getSelectedFile();
+                        // Asegurarse de que la extensión .pdf esté presente
+                        String filePath = fileToSave.getAbsolutePath();
+                        if (!filePath.toLowerCase().endsWith(".pdf")) {
+                            filePath += ".pdf";
+                        }
+
+                        // Llamar al método generarPdfEquipo en panelEquiposRef, pasando la ruta completa
+                        panelEquiposRef.generarPdfEquipo(equipo, filePath); 
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Operación de guardado de PDF cancelada por el usuario.", "PDF Cancelado", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se pudo obtener la información del equipo para imprimir.", "Error de Datos", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, 
+                                              "Error al obtener datos del equipo para imprimir: " + ex.getMessage(), 
+                                              "Error SQL", 
+                                              JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (ClassCastException | NullPointerException ex) {
+                JOptionPane.showMessageDialog(null, 
+                                              "Error al obtener ID del equipo de la tabla para imprimir.", 
+                                              "Error Interno", 
+                                              JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
         } else {
             System.out.println("Índice de fila inválido para imprimir: " + row);
         }

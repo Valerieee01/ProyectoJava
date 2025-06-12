@@ -5,17 +5,27 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import clasesBotones.BotonEditorEquipos; // Asegúrate de que esta clase exista y sea correcta
-import clasesBotones.BotonRenderer;     // Asegúrate de que esta clase exista y sea correcta
-import formularios.FormularioEditar;    // Importa tu formulario de edición
-import DAO.EquiposDAO;                  // Importa tu DAO de equipos
-import modelos.Equipo;                  // Importa tu modelo Equipo
+import com.itextpdf.io.IOException;
+//Importaciones de iText 7
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.UnitValue;
+
+import clasesBotones.BotonEditorEquipos; 
+import clasesBotones.BotonRenderer;     
+import formularios.FormularioEditar;    
+import DAO.EquiposDAO;                
+import modelos.Equipo;                  
 import util.ConnectionADMIN;
-import util.ConnectionDBA;              // Importa tu clase de conexión a la base de datos (¡usar esta en lugar de ConnectionADMIN si es el caso!)
 
 /**
  * Panel que muestra una tabla de equipos, con funcionalidades para agregar,
@@ -165,6 +175,74 @@ public class panelEquipos extends JPanel {
         }
     }
 
-    // Ya no es necesario un método closeConnection aquí si las conexiones se gestionan con try-with-resources
-    // en cada operación del DAO.
+    /**
+     * Genera un documento PDF con los detalles del equipo proporcionado en la ruta especificada.
+     *
+     * @param equipo El objeto Equipo cuyos detalles se usarán para generar el PDF.
+     * @param filePath La ruta completa del archivo donde se guardará el PDF.
+     */
+    public void generarPdfEquipo(Equipo equipo, String filePath) { // ¡Método actualizado para aceptar filePath!
+        if (equipo == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró información del equipo para generar el PDF.", "Error de PDF", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            PdfWriter writer = new PdfWriter(filePath); // Usar la ruta de archivo proporcionada
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            // Título del documento
+            document.add(new Paragraph("Reporte de Equipo - " + equipo.getNumeroEquipo()).setFontSize(18).setBold());
+            document.add(new Paragraph("\n")); // Salto de línea
+
+            // Detalles del equipo en formato de tabla
+            Table table = new Table(UnitValue.createPercentArray(new float[]{1, 2})); // Dos columnas: Etiqueta y Valor
+            table.setWidth(UnitValue.createPercentValue(100)); // Ancho de tabla al 100%
+
+            table.addCell(new Paragraph("ID Equipo:").setBold());
+            table.addCell(new Paragraph(String.valueOf(equipo.getIdEquipo())));
+
+            table.addCell(new Paragraph("Número de Equipo:").setBold());
+            table.addCell(new Paragraph(equipo.getNumeroEquipo()));
+
+            table.addCell(new Paragraph("Placa:").setBold());
+            table.addCell(new Paragraph(equipo.getPlaca()));
+
+            table.addCell(new Paragraph("Descripción:").setBold());
+            table.addCell(new Paragraph(equipo.getDescripcion()));
+
+            table.addCell(new Paragraph("ID Cliente:").setBold());
+            table.addCell(new Paragraph(String.valueOf(equipo.getIdCliente())));
+            
+            document.add(table);
+
+            document.add(new Paragraph("\n")); // Salto de línea
+            document.add(new Paragraph("Reporte generado por SmartCount_P1_DBA"));
+
+            document.close(); 
+
+            JOptionPane.showMessageDialog(this, "PDF del equipo generado exitosamente en: " + filePath, "PDF Generado", JOptionPane.INFORMATION_MESSAGE);
+
+            // Opcional: Abrir el PDF automáticamente
+            try {
+                File file = new File(filePath);
+                if (file.exists()) {
+                    Desktop.getDesktop().open(file);
+                }
+            } catch (IOException ex) {
+                System.err.println("No se pudo abrir el PDF automáticamente: " + ex.getMessage());
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: No se pudo crear el archivo PDF. Asegúrate de tener permisos de escritura en la ubicación.", "Error de Archivo", JOptionPane.ERROR_MESSAGE);
+        } catch (IOException e) { // Captura otros errores de I/O
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al escribir el archivo PDF: " + e.getMessage(), "Error de Escritura", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) { // Captura cualquier otra excepción inesperada de iText
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error inesperado al generar el PDF: " + e.getMessage(), "Error de PDF", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

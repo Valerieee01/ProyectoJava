@@ -3,11 +3,14 @@ package clasesBotones;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import formularios.FormularioEditarCliente;
 import menuInicialAdministrador.panelClientes;
+import modelos.Equipo;
+import modelos.Persona;
 import DAO.PersonasDAO;
 import util.ConnectionADMIN;
 
@@ -110,10 +113,54 @@ public class BotonEditorClientes extends DefaultCellEditor {
         }
     }
 
+    // --- Lógica del botón Imprimir---
     private void imprimir(int row) {
-        String numero = modeloTabla.getValueAt(row, 1).toString();
-        JOptionPane.showMessageDialog(null, "Generar PDF para cliente: " + numero);
-        fireEditingStopped();
+        if (row >= 0 && row < modeloTabla.getRowCount()) {
+        	
+            try (Connection conn = ConnectionADMIN.getConnectionADMIN()) { 
+                String numeroIdentificacion = (String) modeloTabla.getValueAt(row, 1); // Obtener el ID del equipo
+
+					Persona persona = PersonasDAO.obtenerPersonaPorNumeroIdentificacion(numeroIdentificacion, conn);
+
+                if (persona != null) {
+                    // --- Iniciar JFileChooser para seleccionar la ubicación de guardado ---
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Guardar PDF del Equipo");
+                    fileChooser.setSelectedFile(new File("reporte_equipo_" + persona.getNumeroIdentificacion() + ".pdf")); // Nombre por defecto
+
+                    int userSelection = fileChooser.showSaveDialog(panel); // Mostrar el diálogo de guardar
+                    if (userSelection == JFileChooser.APPROVE_OPTION) {
+                        File fileToSave = fileChooser.getSelectedFile();
+                        // Asegurarse de que la extensión .pdf esté presente
+                        String filePath = fileToSave.getAbsolutePath();
+                        if (!filePath.toLowerCase().endsWith(".pdf")) {
+                            filePath += ".pdf";
+                        }
+
+                        // Llamar al método generarPdfEquipo en panelEquiposRef, pasando la ruta completa
+                        panelClientesRef.generarPdfClientes(persona, filePath); 
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Operación de guardado de PDF cancelada por el usuario.", "PDF Cancelado", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se pudo obtener la información del equipo para imprimir.", "Error de Datos", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, 
+                                              "Error al obtener datos del equipo para imprimir: " + ex.getMessage(), 
+                                              "Error SQL", 
+                                              JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (ClassCastException | NullPointerException ex) {
+                JOptionPane.showMessageDialog(null, 
+                                              "Error al obtener ID del equipo de la tabla para imprimir.", 
+                                              "Error Interno", 
+                                              JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        } else {
+            System.out.println("Índice de fila inválido para imprimir: " + row);
+        }
     }
 
     private ImageIcon escalarIcono(String ruta, int ancho, int alto) {

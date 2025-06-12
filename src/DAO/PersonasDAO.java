@@ -145,7 +145,7 @@ public class PersonasDAO {
      * @return Un objeto Persona si se encuentra un registro con ese ID, o null si no se encuentra.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public Persona obtenerPersonaPorNumeroIdentificacion(String numeroIdentificacion, Connection connection) throws SQLException {
+    public static Persona obtenerPersonaPorNumeroIdentificacion(String numeroIdentificacion, Connection connection) throws SQLException {
         String sql = "SELECT id_persona, nombre_completo_razon_social, id_tipo_identificacion, " +
                      "numero_identificacion, correo, telefono, direccion, id_ciudad, " +
                      "estado, fecha_registro, fecha_actualizacion FROM personas WHERE numero_identificacion = ?";

@@ -143,7 +143,7 @@ public class BotonEditorEmpleados extends DefaultCellEditor {
                         }
 
                         // Llamar al método generarPdfEquipo en panelEquiposRef, pasando la ruta completa
-                        panelEmpleadosRef.generarPdfClientes(persona, filePath); 
+                        panelEmpleadosRef.generarPdfEmpleados(persona, filePath); 
                     } else {
                         JOptionPane.showMessageDialog(null, "Operación de guardado de PDF cancelada por el usuario.", "PDF Cancelado", JOptionPane.INFORMATION_MESSAGE);
                     }

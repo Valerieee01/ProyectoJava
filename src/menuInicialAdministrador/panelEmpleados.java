@@ -152,7 +152,7 @@ public class panelEmpleados extends JPanel {
      * @param equipo El objeto Equipo cuyos detalles se usarán para generar el PDF.
      * @param filePath La ruta completa del archivo donde se guardará el PDF.
      */
-    public void generarPdfClientes(Persona persona, String filePath) { // ¡Método actualizado para aceptar filePath!
+    public void generarPdfEmpleados(Persona persona, String filePath) { // ¡Método actualizado para aceptar filePath!
         if (persona == null) {
             JOptionPane.showMessageDialog(this, "No se encontró información del equipo para generar el PDF.", "Error de PDF", JOptionPane.ERROR_MESSAGE);
             return;

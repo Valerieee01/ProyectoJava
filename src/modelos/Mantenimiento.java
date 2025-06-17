@@ -14,6 +14,7 @@ public class Mantenimiento {
     // Cada atributo tiene un tipo de dato Java que se alinea con el tipo de dato SQL.
     private int idMantenimiento;       // Corresponde a 'id_mantenimiento' (INT AUTO_INCREMENT PRIMARY KEY)
     private int idEquipo;              // Corresponde a 'id_equipo' (INT FOREIGN KEY)
+    private int idEmpleado;            // Corresponde a 'id_empleado' (INT FOREIGN KEY) // Corregido el comentario
     private String descripcionTrabajo; // Corresponde a 'descripcion_trabajo' (TEXT)
     private String encargado;          // Corresponde a 'encargado' (VARCHAR)
     private TipoMantenimiento tipoMantenimiento; // Corresponde a 'tipo_mantenimiento' (ENUM)
@@ -40,7 +41,7 @@ public class Mantenimiento {
     }
 
     /**
-     * Constructor para crear un nuevo objeto Mantenimiento.
+     * Constructor para crear un nuevo objeto Mantenimiento (para inserción).
      * Este constructor se utiliza típicamente cuando se va a insertar un nuevo registro
      * en la base de datos, excluyendo los campos que son generados automáticamente
      * por la base de datos (como id_mantenimiento, fecha_registro y fecha_actualizacion).
@@ -51,11 +52,13 @@ public class Mantenimiento {
      * @param tipoMantenimiento El tipo de mantenimiento realizado (preventivo o correctivo).
      * @param fechaMantenimiento La fecha en que se realizó el mantenimiento.
      * @param observaciones Notas adicionales o comentarios sobre el mantenimiento.
+     * @param idEmpleado El ID del empleado que realizó el mantenimiento.
      */
     public Mantenimiento(int idEquipo, String descripcionTrabajo, String encargado,
                          TipoMantenimiento tipoMantenimiento, Date fechaMantenimiento,
-                         String observaciones) {
+                         String observaciones, int idEmpleado) {
         this.idEquipo = idEquipo;
+        this.idEmpleado = idEmpleado;
         this.descripcionTrabajo = descripcionTrabajo;
         this.encargado = encargado;
         this.tipoMantenimiento = tipoMantenimiento;
@@ -65,123 +68,70 @@ public class Mantenimiento {
         // porque se espera que la base de datos los gestione automáticamente.
     }
 
-    // --- Getters y Setters ---
-    // Métodos públicos para acceder (get) y modificar (set) los atributos privados de la clase.
-    // Esto asegura el encapsulamiento de los datos del objeto.
-
     /**
-     * Obtiene el ID único del mantenimiento.
-     * @return El ID del mantenimiento.
+     * Constructor completo para crear un objeto Mantenimiento (para recuperación o actualización).
+     * Incluye todos los campos de la base de datos, incluido el ID del mantenimiento.
+     *
+     * @param idMantenimiento El ID único del mantenimiento.
+     * @param idEquipo El ID del equipo al que se le realizó el mantenimiento.
+     * @param descripcionTrabajo Una descripción del trabajo realizado durante el mantenimiento.
+     * @param encargado El nombre o identificación de la persona o entidad encargada del mantenimiento.
+     * @param tipoMantenimiento El tipo de mantenimiento realizado (preventivo o correctivo).
+     * @param fechaMantenimiento La fecha en que se realizó el mantenimiento.
+     * @param observaciones Notas adicionales o comentarios sobre el mantenimiento.
+     * @param idEmpleado El ID del empleado que realizó el mantenimiento.
      */
-    public int getIdMantenimiento() {
-        return idMantenimiento;
-    }
-
-    /**
-     * Establece el ID único del mantenimiento.
-     * @param idMantenimiento El ID del mantenimiento a establecer.
-     */
-    public void setIdMantenimiento(int idMantenimiento) {
+    public Mantenimiento(int idMantenimiento, int idEquipo, String descripcionTrabajo, String encargado,
+                         TipoMantenimiento tipoMantenimiento, Date fechaMantenimiento, String observaciones,
+                         int idEmpleado) {
         this.idMantenimiento = idMantenimiento;
-    }
-
-    /**
-     * Obtiene el ID del equipo al que se realizó el mantenimiento.
-     * @return El ID del equipo.
-     */
-    public int getIdEquipo() {
-        return idEquipo;
-    }
-
-    /**
-     * Establece el ID del equipo al que se realizó el mantenimiento.
-     * @param idEquipo El ID del equipo a establecer.
-     */
-    public void setIdEquipo(int idEquipo) {
         this.idEquipo = idEquipo;
-    }
-
-    /**
-     * Obtiene la descripción del trabajo realizado.
-     * @return La descripción del trabajo.
-     */
-    public String getDescripcionTrabajo() {
-        return descripcionTrabajo;
-    }
-
-    /**
-     * Establece la descripción del trabajo realizado.
-     * @param descripcionTrabajo La descripción del trabajo a establecer.
-     */
-    public void setDescripcionTrabajo(String descripcionTrabajo) {
+        this.idEmpleado = idEmpleado;
         this.descripcionTrabajo = descripcionTrabajo;
-    }
-
-    /**
-     * Obtiene el nombre o identificación del encargado del mantenimiento.
-     * @return El encargado.
-     */
-    public String getEncargado() {
-        return encargado;
-    }
-
-    /**
-     * Establece el nombre o identificación del encargado del mantenimiento.
-     * @param encargado El encargado a establecer.
-     */
-    public void setEncargado(String encargado) {
         this.encargado = encargado;
-    }
-
-    /**
-     * Obtiene el tipo de mantenimiento (preventivo o correctivo).
-     * @return El tipo de mantenimiento.
-     */
-    public TipoMantenimiento getTipoMantenimiento() {
-        return tipoMantenimiento;
-    }
-
-    /**
-     * Establece el tipo de mantenimiento (preventivo o correctivo).
-     * @param tipoMantenimiento El tipo de mantenimiento a establecer.
-     */
-    public void setTipoMantenimiento(TipoMantenimiento tipoMantenimiento) {
         this.tipoMantenimiento = tipoMantenimiento;
-    }
-
-    /**
-     * Obtiene la fecha en que se realizó el mantenimiento.
-     * @return La fecha del mantenimiento.
-     */
-    public Date getFechaMantenimiento() {
-        return fechaMantenimiento;
-    }
-
-    /**
-     * Establece la fecha en que se realizó el mantenimiento.
-     * @param fechaMantenimiento La fecha del mantenimiento a establecer.
-     */
-    public void setFechaMantenimiento(Date fechaMantenimiento) {
         this.fechaMantenimiento = fechaMantenimiento;
-    }
-
-    /**
-     * Obtiene las observaciones adicionales sobre el mantenimiento.
-     * @return Las observaciones.
-     */
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    /**
-     * Establece las observaciones adicionales sobre el mantenimiento.
-     * @param observaciones Las observaciones a establecer.
-     */
-    public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+        // Los campos fechaRegistro y fechaActualizacion no se inicializan aquí
+        // si se espera que la base de datos los gestione.
     }
 
-  
+
+    // --- Getters y Setters ---
+    // (Estos permanecen sin cambios ya que ya eran correctos para 'fechaMantenimiento' y 'idEmpleado')
+
+    public int getIdMantenimiento() { return idMantenimiento; }
+    public void setIdMantenimiento(int idMantenimiento) { this.idMantenimiento = idMantenimiento; }
+
+    public int getIdEquipo() { return idEquipo; }
+    public void setIdEquipo(int idEquipo) { this.idEquipo = idEquipo; }
+
+    public int getIdEmpleado() { return idEmpleado; }
+    public void setIdEmpleado(int idEmpleado) { this.idEmpleado = idEmpleado; }
+
+    public String getDescripcionTrabajo() { return descripcionTrabajo; }
+    public void setDescripcionTrabajo(String descripcionTrabajo) { this.descripcionTrabajo = descripcionTrabajo; }
+
+    public String getEncargado() { return encargado; }
+    public void setEncargado(String encargado) { this.encargado = encargado; }
+
+    public TipoMantenimiento getTipoMantenimiento() { return tipoMantenimiento; }
+    public void setTipoMantenimiento(TipoMantenimiento tipoMantenimiento) { this.tipoMantenimiento = tipoMantenimiento; }
+
+    public Date getFechaMantenimiento() { return fechaMantenimiento; }
+    public void setFechaMantenimiento(Date fechaMantenimiento) { this.fechaMantenimiento = fechaMantenimiento; }
+
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+
+    // Getters y setters para fechaRegistro y fechaActualizacion (existentes, solo se muestran por completitud)
+    public Timestamp getFechaRegistro() { return fechaRegistro; }
+    public void setFechaRegistro(Timestamp fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+
+    public Timestamp getFechaActualizacion() { return fechaActualizacion; }
+    public void setFechaActualizacion(Timestamp fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
+
+
     /**
      * Sobreescribe el método toString() para proporcionar una representación
      * de cadena legible del objeto Mantenimiento. Es útil para la depuración y el logging.
@@ -192,6 +142,7 @@ public class Mantenimiento {
         return "Mantenimiento{" +
                "idMantenimiento=" + idMantenimiento +
                ", idEquipo=" + idEquipo +
+               ", idEmpleado=" + idEmpleado + // Añadido idEmpleado al toString
                ", descripcionTrabajo='" + descripcionTrabajo + '\'' +
                ", encargado='" + encargado + '\'' +
                ", tipoMantenimiento=" + tipoMantenimiento +

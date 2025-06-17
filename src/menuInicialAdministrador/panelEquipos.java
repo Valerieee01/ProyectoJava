@@ -155,14 +155,13 @@ public class panelEquipos extends JPanel {
             // Itera sobre cada equipo en la lista
             for (Equipo equipo : equipos) {
                 // Añade una nueva fila al modelo de la tabla con los datos del equipo.
-                // Asegúrate de que el orden de los datos coincida con el orden de las columnas en modeloTabla.
                 modeloTabla.addRow(new Object[]{
-                    equipo.getIdEquipo(),     // Columna 0: ID Equipo (usado para edición/eliminación)
-                    equipo.getNumeroEquipo(), // Columna 1: Número
-                    equipo.getPlaca(),        // Columna 2: Placa
-                    equipo.getDescripcion(),  // Columna 3: Descripción
-                    equipo.getIdCliente(),    // Columna 4: ID Cliente
-                    ""                        // Columna 5: Acciones (el CellRenderer se encargará de los botones)
+                    equipo.getIdEquipo(),     
+                    equipo.getNumeroEquipo(), 
+                    equipo.getPlaca(),        
+                    equipo.getDescripcion(), 
+                    equipo.getIdCliente(),   
+                    ""                       
                 });
             }
         } catch (SQLException e) {

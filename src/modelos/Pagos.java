@@ -22,6 +22,7 @@ public class Pagos {
 	private String detalle; // Correspondiente al 'detalle' (TEXT)
 	private BigDecimal valorTrabajo; // Correspondiente al 'valor_trabajo' (DECIMAL(10,2) NOT NULL)
 	private BigDecimal valorPagado; // Correspondiente al 'valor_pago' (ENUM('vencido', 'pagado', 'mora') NOT NULL DEFAULT 'mora')
+	private BigDecimal valorMora;	 // Correspondiente al 'valor_trabajo' (DECIMAL(10,2) NOT NULL) calculado por la db
 	private EstadoPago estadoPago;        // Corresponde a 'estado_pago' (ENUM)
     private Date fechaFacturacion;        // Corresponde a 'fecha_facturacion' (DATE)
     private int diasPlazo;                // Corresponde a 'dias_plazo' (INT)
@@ -54,8 +55,8 @@ public class Pagos {
      * @param diasPlazo La cantidad de días de plazo para el pago.
      * @param fechaVencimiento La fecha en que vence el pago.
      */
-    public Pagos(int idCliente, int idMantenimiento, String detalle, BigDecimal valorTrabajo, BigDecimal valorPagado, EstadoPago estadoPago, Date fechaFacturacion, int diasPlazo, Date fechaVencimiento)
-    {
+	
+    public Pagos(int idCliente, int idMantenimiento, String detalle, BigDecimal valorTrabajo, BigDecimal valorPagado, EstadoPago estadoPago, Date fechaFacturacion, int diasPlazo) {
         this.idCliente = idCliente;
         this.idMantenimiento = idMantenimiento;
         this.detalle = detalle;
@@ -64,9 +65,28 @@ public class Pagos {
         this.estadoPago = estadoPago;
         this.fechaFacturacion = fechaFacturacion;
         this.diasPlazo = diasPlazo;
+    }
+
+    /**
+     * Constructor para RECONSTRUIR un objeto Pago DESDE la base de datos.
+     * INCLUYE todos los campos, incluso los generados o auto-incrementales.
+     */
+    public Pagos(int idPago, int idCliente, int idMantenimiento, String detalle, BigDecimal valorTrabajo, BigDecimal valorPagado, BigDecimal valorMora, EstadoPago estadoPago, Date fechaFacturacion, int diasPlazo, Date fechaVencimiento) {
+        this.idPago = idPago;
+        this.idCliente = idCliente;
+        this.idMantenimiento = idMantenimiento;
+        this.detalle = detalle;
+        this.valorTrabajo = valorTrabajo;
+        this.valorPagado = valorPagado;
+        this.valorMora = valorMora; // Se inicializa desde la lectura de la DB
+        this.estadoPago = estadoPago;
+        this.fechaFacturacion = fechaFacturacion;
+        this.diasPlazo = diasPlazo;
         this.fechaVencimiento = fechaVencimiento;
-        // Los campos idPago, valorMora, fechaRegistro y fechaActualizacion no se inicializan aquí
-        // porque se espera que la base de datos los gestione automáticamente.
+    }
+    
+    public Pagos() {
+    	
     }
 
     // --- Getters y Setters ---
@@ -169,6 +189,17 @@ public class Pagos {
         this.valorPagado = valorPagado;
     }
 
+    /**
+     * Obtiene el valor que falta por pagar.
+     * @return valorMora El valor no pagado a establecer.
+     */
+    public BigDecimal getValorMora() { return valorMora; }
+    
+    /**
+     * Establece el valor que falta por pagar.
+     * @param valorPagado El valor pagado a establecer.
+     */
+    public void setValorMora(BigDecimal valorMora) { this.valorMora = valorMora; }
     /**
      * Obtiene el estado actual del pago (vencido, pagado, mora).
      * @return El estado del pago.

@@ -72,7 +72,7 @@ public class contenedorInicioEmp extends JFrame {
 		ContenedorCardLayout.setBackground(naranjaPastel);
 		
 		
-		JLabel labelBienvenida = new JLabel("BIENVENIDO ADMINISTRADOR");
+		JLabel labelBienvenida = new JLabel("BIENVENIDO EMPLEADO");
 		labelBienvenida.setFont(new Font("Franklin Gothic Demi Cond", Font.PLAIN, 30));
 		labelBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
 		ContenedorCardLayout.add(labelBienvenida, "name_12516905000400");

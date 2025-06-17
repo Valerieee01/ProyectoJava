@@ -1,18 +1,21 @@
 package login;
 
 import javax.swing.*;
+
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 /*
  * Importación de librerias
  */
 import java.awt.EventQueue;
 import java.awt.Image;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
@@ -21,10 +24,16 @@ import conectionFrames.conectarFrames;
 import funciones.funciones;
 
 import java.awt.Color;
-import javax.swing.SwingConstants;
 import java.awt.Font;
-import javax.swing.JTextField;
-import javax.swing.JButton;
+
+
+//--- Nuevas importaciones necesarias ---
+import DAO.UsuariosDAO;
+import modelos.Usuario;
+import util.ConnectionADMIN;
+import menuInicialAdministrador.contenedorInicio; 
+import menuInicialEmpleado.contenedorInicioEmp;
+
 
 
 public class intefaceLogin extends JFrame {
@@ -125,7 +134,8 @@ public class intefaceLogin extends JFrame {
 		
 		JButton btnInicioSesion = new JButton("Iniciar Sesion");
 		btnInicioSesion.addActionListener(e ->{
-				
+			inicioSesion();
+		
 		});
 		btnInicioSesion.setForeground(new Color(255, 255, 255));
 		btnInicioSesion.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -183,6 +193,58 @@ public class intefaceLogin extends JFrame {
 		funciones.cargarImagenEnLabel(labelGithub, "/img_login/git.png", 30, 30);
 		
 
+	}
+	
+	
+	public void inicioSesion() {
+	    String correo = fieldNombre.getText(); // El campoNombre es para el correo en tu DAO
+	    String contrasena = new String(fieldContrasena.getPassword());
+
+	    // Validación básica de campos
+	    if (correo.isEmpty() || contrasena.isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Por favor, ingrese su correo y contraseña.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+
+	    Usuario usuarioLogueado = null;
+	    try (Connection conn = ConnectionADMIN.getConnectionADMIN()) {
+	        usuarioLogueado = UsuariosDAO.obtenerUsuarioPorCorreo(correo, conn);
+
+	        if (usuarioLogueado != null) {
+	           
+	            if (contrasena.equals(usuarioLogueado.getContrasena())) { 
+	                JOptionPane.showMessageDialog(this, "¡Inicio de sesión exitoso!", "Bienvenido", JOptionPane.INFORMATION_MESSAGE);
+
+	                // Lógica para mantener al usuario logueado y redirigir
+	                // Ocultar la ventana de login
+	                this.setVisible(false);
+	                
+	                // Redirigir según el rol
+	                switch (usuarioLogueado.getIdRol()) {
+	                    case 2: // Asumimos que 1 es el rol de Administrador
+	                    	contenedorInicio menuAdmin = new contenedorInicio(usuarioLogueado);
+	                        menuAdmin.setVisible(true);
+	                        break;
+	                    case 3: 
+	                    	contenedorInicioEmp menuEmpleado = new contenedorInicioEmp(usuarioLogueado);
+	                    	menuEmpleado.setVisible(true);
+	                        break;
+	                    default:
+	                        JOptionPane.showMessageDialog(this, "Rol de usuario no reconocido. Contacte al administrador.", "Error de Rol", JOptionPane.ERROR_MESSAGE);
+	                        // Volver a mostrar la ventana de login o cerrar
+	                        this.setVisible(true);
+	                        break;
+	                }
+	            } else {
+	                JOptionPane.showMessageDialog(this, "Contraseña incorrecta.", "Error de Autenticación", JOptionPane.ERROR_MESSAGE);
+	            }
+	        } else {
+	            JOptionPane.showMessageDialog(this, "Usuario no encontrado.", "Error de Autenticación", JOptionPane.ERROR_MESSAGE);
+	        }
+	    } catch (SQLException e) {
+	        JOptionPane.showMessageDialog(this, "Error de base de datos durante el inicio de sesión: " + e.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+	        e.printStackTrace();
+	    }
 	}
 	
 

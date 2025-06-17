@@ -1,121 +1,117 @@
 package DAO;
 
 import java.sql.Connection;
-import java.sql.Date; // Importar java.sql.Date explícitamente para evitar ambigüedades
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement; // Necesario para obtener las claves generadas
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import modelos.Pagos;
 import modelos.Pagos.EstadoPago;
 
 public class ReportesPagosDAO {
 
-    /**
-     * Constructor vacío.
-     * La conexión se pasa a cada método, lo cual es una buena práctica para la gestión de recursos
-     * y permite mayor flexibilidad (ej. diferentes fuentes de conexión).
-     */
     public ReportesPagosDAO() {
-        // No se requiere inicialización específica aquí, ya que la conexión se maneja externamente.
+
     }
 
     /**
-     * Inserta un nuevo registro de mantenimiento en la base de datos.
-     * Si la base de datos genera un ID automáticamente, este método intenta obtenerlo y asignarlo
-     * al objeto Mantenimiento pasado, además de retornarlo.
+     * Inserta un nuevo registro de pago en la base de datos.
+     * Retorna el ID generado por la base de datos para el nuevo pago.
      *
-     * @param mantenimiento El objeto Mantenimiento a insertar, con los datos necesarios.
+     * @param pago El objeto Pagos a insertar, con los datos necesarios.
      * @param connection La conexión JDBC a la base de datos.
-     * @return El ID (int) generado por la base de datos para el nuevo mantenimiento, o -1 si no se pudo obtener un ID.
+     * @return El ID (int) generado por la base de datos para el nuevo pago, o -1 si no se pudo obtener un ID.
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public int agregarMantenimiento(Pagos pagos , Connection connection) throws SQLException {
-        // Se añade Statement.RETURN_GENERATED_KEYS para poder recuperar el ID generado por la BD.
-        String sql = "INSERT INTO pagos ( id_cliente, id_mantenimiento, detalle, valor_trabajo, valor_pagado,"
-        		+ "    estado_pago, fecha_facturacion, dias_plazo)"
+    public int agregarPago(Pagos pago, Connection connection) throws SQLException { // Renombrado de agregarMantenimiento a agregarPago y parámetro a 'pago'
+        // Las columnas 'valor_mora', 'fecha_vencimiento', 'fecha_registro', 'fecha_actualizacion'
+        // son GENERADAS/DEFAULT por la DB, NO se incluyen en el INSERT.
+        String sql = "INSERT INTO pagos (id_cliente, id_mantenimiento, detalle, valor_trabajo, valor_pagado, "
+                + "estado_pago, fecha_facturacion, dias_plazo)"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        int idGenerado = -1; // Valor por defecto si no se puede obtener el ID
+        int idGenerado = -1;
 
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setInt(1, pagos.getIdCliente());
-            statement.setInt(2, pagos.getIdMantenimiento());
-            statement.setString(3, pagos.getDetalle());
-            statement.setBigDecimal(4, pagos.getValorTrabajo());
-            statement.setBigDecimal(5, pagos.getValorPagado());
-            statement.setString(6, pagos.getEstadoPago().name());
-            statement.setDate(7, pagos.getFechaFacturacion());
-            statement.setInt(8, pagos.getDiasPlazo());
-
+            statement.setInt(1, pago.getIdCliente());
+            statement.setInt(2, pago.getIdMantenimiento());
+            statement.setString(3, pago.getDetalle());
+            statement.setBigDecimal(4, pago.getValorTrabajo());
+            statement.setBigDecimal(5, pago.getValorPagado());
+            statement.setString(6, pago.getEstadoPago().name()); // Convertir Enum a String
+            statement.setDate(7, pago.getFechaFacturacion());
+            statement.setInt(8, pago.getDiasPlazo());
 
             int filasAfectadas = statement.executeUpdate();
 
             if (filasAfectadas > 0) {
                 System.out.println("¡Pago agregado exitosamente!");
-                // Intenta recuperar el ID generado automáticamente por la base de datos.
                 try (ResultSet rs = statement.getGeneratedKeys()) {
                     if (rs.next()) {
-                        idGenerado = rs.getInt(1); // El primer (y generalmente único) ID generado.
-                        pagos.setIdMantenimiento(idGenerado); // Asigna el ID al objeto Mantenimiento.
+                        idGenerado = rs.getInt(1);
+                        pago.setIdPago(idGenerado); // Asigna el ID al objeto Pago
                     }
                 }
             } else {
-                System.out.println("No se pudo agregar el mantenimiento.");
+                System.out.println("No se pudo agregar el pago.");
             }
         }
-        return idGenerado; // Retorna el ID generado o -1.
+        return idGenerado;
     }
 
     /**
-     * Modifica un registro de pagos existente en la base de datos.
+     * Modifica un registro de pago existente en la base de datos.
+     * Las columnas generadas por la DB (valor_mora, fecha_vencimiento, fecha_actualizacion)
+     * no se incluyen en el UPDATE ya que se gestionan automáticamente.
      *
-     * @param pago El objeto Pago con los datos actualizados. Es crucial que el `idPago`
-     * dentro de este objeto sea el correcto para identificar el registro a modificar.
+     * @param pago El objeto Pagos con los datos actualizados y el ID del pago a modificar.
      * @param connection La conexión JDBC a la base de datos.
      * @return `true` si el pago fue modificado exitosamente, `false` en caso contrario (ej. si no se encontró el ID).
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public boolean modificarMantenimiento(Pagos pagos, Connection connection) throws SQLException {
-        String sql = "UPDATE mantenimientos SET id_cliente = ?, id_mantenimiento = ?, " +
-                     "detalle = ?, valor_trabajo = ?, valor_pagado = ?, estado_pago = ?, fecha_facturacion = ? , dias_plazo = ?" +
-                     "WHERE id_pago = ?"; 
+    public boolean modificarPago(Pagos pago, Connection connection) throws SQLException { // Renombrado de modificarMantenimiento a modificarPago y parámetro a 'pago'
+        String sql = "UPDATE pagos SET id_cliente = ?, id_mantenimiento = ?, " +
+                     "detalle = ?, valor_trabajo = ?, valor_pagado = ?, estado_pago = ?, " +
+                     "fecha_facturacion = ?, dias_plazo = ? " + // Las columnas generadas por DB no se actualizan aquí
+                     "WHERE id_pago = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-        	statement.setInt(1, pagos.getIdCliente());
-            statement.setInt(2, pagos.getIdMantenimiento());
-            statement.setString(3, pagos.getDetalle());
-            statement.setBigDecimal(4, pagos.getValorTrabajo());
-            statement.setBigDecimal(5, pagos.getValorPagado());
-            statement.setString(6, pagos.getEstadoPago().name());
-            statement.setDate(7, pagos.getFechaFacturacion());
-            statement.setInt(8, pagos.getDiasPlazo());
-            statement.setInt(9, pagos.getIdPago());
-
+            statement.setInt(1, pago.getIdCliente());
+            statement.setInt(2, pago.getIdMantenimiento());
+            statement.setString(3, pago.getDetalle());
+            statement.setBigDecimal(4, pago.getValorTrabajo());
+            statement.setBigDecimal(5, pago.getValorPagado());
+            statement.setString(6, pago.getEstadoPago().name()); // Convertir Enum a String
+            statement.setDate(7, pago.getFechaFacturacion());
+            statement.setInt(8, pago.getDiasPlazo());
+            statement.setInt(9, pago.getIdPago()); // ID para la cláusula WHERE
 
             int filasAfectadas = statement.executeUpdate();
 
             if (filasAfectadas > 0) {
-                System.out.println("¡Mantenimiento modificado exitosamente!");
-                return true; // Indica éxito
+                System.out.println("¡Pago modificado exitosamente!");
+                return true;
             } else {
-                System.out.println("No se encontró ningún mantenimiento con el ID especificado para modificar.");
-                return false; // Indica que no se modificó nada
+                System.out.println("No se encontró ningún pago con el ID especificado para modificar.");
+                return false;
             }
         }
     }
 
     /**
-     * Elimina un registro de mantenimiento de la base de datos basándose en su ID.
+     * Elimina un registro de pago de la base de datos basándose en su ID.
      *
      * @param idPago El ID del pago a eliminar.
      * @param connection La conexión JDBC a la base de datos.
      * @return `true` si el pago fue eliminado exitosamente, `false` en caso contrario (ej. si no se encontró el ID).
      * @throws SQLException Si ocurre un error al interactuar con la base de datos.
      */
-    public boolean eliminarMantenimiento(int idPago, Connection connection) throws SQLException {
+    public boolean eliminarPago(int idPago, Connection connection) throws SQLException { // Renombrado de eliminarMantenimiento a eliminarPago
         String sql = "DELETE FROM pagos WHERE id_pago = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -124,76 +120,138 @@ public class ReportesPagosDAO {
 
             if (filasAfectadas > 0) {
                 System.out.println("¡Pago eliminado exitosamente!");
-                return true; // Indica éxito
+                return true;
             } else {
                 System.out.println("No se encontró ningún pago con el ID especificado para eliminar.");
-                return false; // Indica que no se eliminó nada
+                return false;
             }
         }
     }
 
     /**
      * Obtiene un registro de pago por su ID.
-     * Es crucial para funcionalidades como la edición, donde se necesita precargar los datos de un mantenimiento específico.
+     * Incluye todos los campos de la base de datos, incluso los generados automáticamente.
      *
-     * @param idMantenimiento El ID del mantenimiento a buscar.
+     * @param idPago El ID del pago a buscar.
      * @param connection La conexión JDBC a la base de datos.
-     * @return El objeto Mantenimiento si se encuentra, o `null` si no existe un mantenimiento con el ID dado.
+     * @return El objeto Pagos si se encuentra, o `null` si no existe un pago con el ID dado.
      * @throws SQLException Si ocurre un error de base de datos durante la consulta.
      */
-    public Pagos obtenerPagosPorId(int idPago, Connection connection) throws SQLException {
-        // Se incluyen todos los campos relevantes para reconstruir el objeto Mantenimiento.
-        String sql = "SELECT id_mantenimiento, id_equipo, descripcion_trabajo, encargado, tipo_mantenimiento, fecha_mantenimiento, observaciones, id_empleado " +
-                     "FROM mantenimientos WHERE id_mantenimiento = ?";
-        
+    public Pagos obtenerPagoPorId(int idPago, Connection connection) throws SQLException { // Renombrado a obtenerPagoPorId
+        // Incluye TODAS las columnas, incluidas las generadas, para tener el objeto completo
+        String sql = "SELECT id_pago, id_cliente, id_mantenimiento, detalle, valor_trabajo, valor_pagado, valor_mora, "
+                + "estado_pago, fecha_facturacion, dias_plazo, fecha_vencimiento, fecha_registro, fecha_actualizacion "
+                + "FROM pagos WHERE id_pago = ?";
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, idPago);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    Pagos pagos = new Pagos();
-                    pagos.setIdPago(resultSet.getInt("id_pago"));
-                    pagos.setDetalle(resultSet.getString("detalle"));
-                    pagos.setValorTrabajo(resultSet.getBigDecimal("valor_trabajo"));
-                    pagos.setValorPagado(resultSet.getBigDecimal("valor_pagado"));
-                    pagos.setEstadoPago(EstadoPago.valueOf(resultSet.getString("estado_pago")));
-                    pagos.setFechaFacturacion(resultSet.getDate("fecha_facturacion"));
-                    pagos.setDiasPlazo(resultSet.getInt("dias_plazo"));
-                    // No se incluyen fecha_registro y fecha_actualizacion son solo para la BD.
-                    return pagos;
+                    Pagos pago = new Pagos();
+                    pago.setIdPago(resultSet.getInt("id_pago"));
+                    pago.setIdCliente(resultSet.getInt("id_cliente")); // ¡Faltaba leer estos IDs!
+                    pago.setIdMantenimiento(resultSet.getInt("id_mantenimiento")); // ¡Faltaba leer estos IDs!
+                    pago.setDetalle(resultSet.getString("detalle"));
+                    pago.setValorTrabajo(resultSet.getBigDecimal("valor_trabajo"));
+                    pago.setValorPagado(resultSet.getBigDecimal("valor_pagado"));
+                    pago.setValorMora(resultSet.getBigDecimal("valor_mora")); // Leer el valor de la mora
+                    pago.setEstadoPago(EstadoPago.valueOf(resultSet.getString("estado_pago")));
+                    pago.setFechaFacturacion(resultSet.getDate("fecha_facturacion"));
+                    pago.setDiasPlazo(resultSet.getInt("dias_plazo"));
+                    pago.setFechaVencimiento(resultSet.getDate("fecha_vencimiento")); // Leer la fecha de vencimiento
+                    // Si tienes atributos Timestamp en Pagos, también léelos:
+                    // pago.setFechaRegistro(resultSet.getTimestamp("fecha_registro"));
+                    // pago.setFechaActualizacion(resultSet.getTimestamp("fecha_actualizacion"));
+                    return pago;
                 }
             }
         }
-        return null; // Retorna null si no se encuentra ningún pago con ese ID.
+        return null;
     }
 
     /**
-     * Obtiene una lista de todos los registros de mantenimiento presentes en la base de datos.
+     * Obtiene una lista de todos los registros de pagos presentes en la base de datos.
+     * Incluye todos los campos de la base de datos, incluso los generados automáticamente.
      *
      * @param connection La conexión JDBC a la base de datos.
-     * @return Una `List` de objetos `Mantenimiento`. La lista estará vacía si no hay mantenimientos.
+     * @return Una `List` de objetos `Pagos`. La lista estará vacía si no hay pagos.
      * @throws SQLException Si ocurre un error de base de datos durante la consulta.
      */
-    public List<Pagos> obtenerTodosLosMantenimientos(Connection connection) throws SQLException {
-        List<Pagos> pago = new ArrayList<>();
-        // Se incluye id_mantenimiento para tener un objeto Mantenimiento completo.
-        String sql = "SELECT id_mantenimiento, id_equipo, descripcion_trabajo, encargado, tipo_mantenimiento, fecha_mantenimiento, observaciones, id_empleado FROM mantenimientos";
+    public List<Pagos> obtenerTodosLosPagos(Connection connection) throws SQLException { // Renombrado de obtenerTodosLosMantenimientos a obtenerTodosLosPagos
+        List<Pagos> pagosList = new ArrayList<>(); // Renombrado 'pago' a 'pagosList' para claridad
+        // Incluye TODAS las columnas, incluidas las generadas, para tener los objetos completos
+        String sql = "SELECT id_pago, id_cliente, id_mantenimiento, detalle, valor_trabajo, valor_pagado, valor_mora, "
+                + "estado_pago, fecha_facturacion, dias_plazo, fecha_vencimiento, fecha_registro, fecha_actualizacion "
+                + "FROM pagos"; // ¡IMPORTANTE! Quitar el WHERE para obtener TODOS
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                Pagos pagos = new Pagos();
-                pagos.(resultSet.getInt("id_mantenimiento")); // Importante para tener el ID
-                pagos.setIdEquipo(resultSet.getInt("id_equipo"));
-                pagos.setDescripcionTrabajo(resultSet.getString("descripcion_trabajo"));
-                pagos.setEncargado(resultSet.getString("encargado"));
-                pagos.setTipoMantenimiento(TipoMantenimiento.valueOf(resultSet.getString("tipo_mantenimiento")));
-                pagos.setFechaMantenimiento(resultSet.getDate("fecha_mantenimiento"));
-                pagos.setObservaciones(resultSet.getString("observaciones"));
-                pagos.setIdEmpleado(resultSet.getInt("id_empleado"));
-                pago.add(pagos);
+                Pagos pago = new Pagos(); // Usar un nombre de variable singular 'pago' dentro del bucle
+                pago.setIdPago(resultSet.getInt("id_pago"));
+                pago.setIdCliente(resultSet.getInt("id_cliente"));
+                pago.setIdMantenimiento(resultSet.getInt("id_mantenimiento"));
+                pago.setDetalle(resultSet.getString("detalle"));
+                pago.setValorTrabajo(resultSet.getBigDecimal("valor_trabajo"));
+                pago.setValorPagado(resultSet.getBigDecimal("valor_pagado"));
+                pago.setValorMora(resultSet.getBigDecimal("valor_mora"));
+                pago.setEstadoPago(EstadoPago.valueOf(resultSet.getString("estado_pago")));
+                pago.setFechaFacturacion(resultSet.getDate("fecha_facturacion"));
+                pago.setDiasPlazo(resultSet.getInt("dias_plazo"));
+                pago.setFechaVencimiento(resultSet.getDate("fecha_vencimiento"));
+                // Si tienes atributos Timestamp en Pagos, también léelos:
+                // pago.setFechaRegistro(resultSet.getTimestamp("fecha_registro"));
+                // pago.setFechaActualizacion(resultSet.getTimestamp("fecha_actualizacion"));
+                pagosList.add(pago); // Añadir el objeto 'pago' a la lista
             }
         }
-        return mantenimientos;
+        return pagosList;
+    }
+    
+    
+    /**
+     * Obtiene la cuenta de pagos por cada estado de pago (para Pie Chart).
+     * @param connection La conexión JDBC a la base de datos.
+     * @return Un mapa donde la clave es el estado (String) y el valor es la cuenta (Integer).
+     * @throws SQLException Si ocurre un error de base de datos.
+     */
+    public Map<String, Integer> obtenerConteoPagosPorEstado(Connection connection) throws SQLException {
+        Map<String, Integer> conteoPorEstado = new LinkedHashMap<>();
+        String sql = "SELECT estado_pago, COUNT(*) as conteo FROM pagos GROUP BY estado_pago";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                conteoPorEstado.put(resultSet.getString("estado_pago"), resultSet.getInt("conteo"));
+            }
+        }
+        return conteoPorEstado;
+    }
+
+    /**
+     * Obtiene la suma de valor_trabajo, valor_pagado y valor_mora por cliente (para Bar Chart).
+     * @param connection La conexión JDBC a la base de datos.
+     * @return Una lista de Mapas, donde cada mapa contiene "id_cliente", "valor_trabajo_total", "valor_pagado_total", "valor_mora_total".
+     * @throws SQLException Si ocurre un error de base de datos.
+     */
+    public List<Map<String, Object>> obtenerValoresAgregadosPorCliente(Connection connection) throws SQLException {
+        List<Map<String, Object>> resultados = new ArrayList<>();
+        String sql = "SELECT id_cliente, SUM(valor_trabajo) as total_trabajo, " +
+                     "SUM(valor_pagado) as total_pagado, SUM(valor_mora) as total_mora " +
+                     "FROM pagos GROUP BY id_cliente ORDER BY id_cliente";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                Map<String, Object> fila = new LinkedHashMap<>();
+                fila.put("id_cliente", resultSet.getInt("id_cliente"));
+                fila.put("total_trabajo", resultSet.getBigDecimal("total_trabajo"));
+                fila.put("total_pagado", resultSet.getBigDecimal("total_pagado"));
+                fila.put("total_mora", resultSet.getBigDecimal("total_mora"));
+                resultados.add(fila);
+            }
+        }
+        return resultados;
     }
 }

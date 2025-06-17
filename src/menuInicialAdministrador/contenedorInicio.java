@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 
 import funciones.funciones;
 import menuInicialEmpleado.paneInicioEmpleado;
+import modelos.Usuario;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -26,6 +27,7 @@ public class contenedorInicio extends JFrame {
 	private JPanel contentPane;
     private Color naranjaPastel = new Color(0xFF, 0xE5, 0xCC);
     private CardLayout cardLayout;
+    private static Usuario usuarioLogueado;
 
 	/**
 	 * Launch the application.
@@ -34,7 +36,7 @@ public class contenedorInicio extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					contenedorInicio frame = new contenedorInicio();
+					contenedorInicio frame = new contenedorInicio(usuarioLogueado);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -46,7 +48,9 @@ public class contenedorInicio extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public contenedorInicio() {
+	public contenedorInicio(Usuario usuario) {
+		this.usuarioLogueado = usuario; 
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1035, 856);
 		contentPane = new JPanel();
@@ -72,7 +76,7 @@ public class contenedorInicio extends JFrame {
 		ContenedorCardLayout.add(labelBienvenida, "name_12516905000400");
 		
 		
-		//Intancviamos los paneles que se desean agregar al contenedor
+		//Intanciamos los paneles que se desean agregar al contenedor
 		paneInicioAdmi paneInicioAdmi = new paneInicioAdmi(cardLayout, ContenedorCardLayout);
 		panelMantenimientos paneMantenimientos = new panelMantenimientos();
 		panelReportes panelReportes = new panelReportes();
@@ -81,8 +85,7 @@ public class contenedorInicio extends JFrame {
 		panelEmpleados panelEmpleados = new panelEmpleados();
 		panelEquipos panelEquipos = new panelEquipos();
 		panelProveedores panelProveedores = new panelProveedores();
-		
-		
+		paneCuentaAdmin paneCuentaAdmin = new paneCuentaAdmin(usuario);
 		
 		// agregamos los paneles al contenedor
 		ContenedorCardLayout.add(paneInicioAdmi, "paneInicioAdmin");
@@ -93,8 +96,8 @@ public class contenedorInicio extends JFrame {
 		ContenedorCardLayout.add(panelEquipos, "paneEquipos");
 		ContenedorCardLayout.add(paneSaldos, "paneSaldos");
 		ContenedorCardLayout.add(panelProveedores, "paneProveedores");
+		ContenedorCardLayout.add(paneCuentaAdmin, "paneCuentaAdmin");
 
-		
 		//creamos el menu lateral 
 		JPanel barraLateralMenu = new JPanel();
 		barraLateralMenu.setBackground(new Color(255, 255, 255));
@@ -192,17 +195,27 @@ public class contenedorInicio extends JFrame {
 		irTrabajos.setBounds(0, 408, 199, 51);
 		barraLateralMenu.add(irTrabajos);
 		
-		JLabel labelNombreUser = new JLabel("Valerie Zharmel");
+		JLabel labelNombreUser = new JLabel("");
 		labelNombreUser.setHorizontalAlignment(SwingConstants.CENTER);
 		labelNombreUser.setFont(new Font("Franklin Gothic Book", Font.BOLD, 16));
 		labelNombreUser.setBounds(0, 148, 199, 41);
 		barraLateralMenu.add(labelNombreUser);
 		
-		JLabel labelApellidoUser = new JLabel("Afanador Perez");
+		JLabel labelApellidoUser = new JLabel("");
 		labelApellidoUser.setHorizontalAlignment(SwingConstants.CENTER);
 		labelApellidoUser.setFont(new Font("Franklin Gothic Book", Font.BOLD, 16));
 		labelApellidoUser.setBounds(0, 178, 199, 41);
 		barraLateralMenu.add(labelApellidoUser);
+		
+
+		if (usuarioLogueado != null) {
+			labelNombreUser.setText(usuarioLogueado.getNombres());
+			labelApellidoUser.setText(usuarioLogueado.getApellidos());
+		} else {
+			labelNombreUser.setText("Invitado");
+			labelApellidoUser.setText("Admin");
+		}
+		
 		
 		JLabel irCuenta = new JLabel("Mi cuenta");
 		irCuenta.setOpaque(true);
@@ -212,6 +225,8 @@ public class contenedorInicio extends JFrame {
 		irCuenta.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneCuentaAdmin");
+
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {

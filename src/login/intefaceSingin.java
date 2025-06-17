@@ -1,10 +1,21 @@
 package login;
 
 /*
- *Importación clases 
+ *Importación clases
  */
 import conectionFrames.conectarFrames;
 import funciones.funciones;
+
+import DAO.UsuariosDAO;
+import DAO.TipoIdentificacionDAO; 
+import DAO.RolDAO;               
+
+import modelos.Usuario;
+import modelos.Usuario.Estado;
+import modelos.TipoIdentificacion; 
+import modelos.Rol;               
+
+import util.ConnectionADMIN;
 
 /*
  * Importación de librerias
@@ -20,6 +31,8 @@ import classBorder.BordeRedondeado;
 
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.Image;
 import javax.swing.SwingConstants;
@@ -28,6 +41,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List; 
 
 /*Inicio lineas de codigo*/
 public class intefaceSingin extends JFrame {
@@ -38,11 +61,17 @@ public class intefaceSingin extends JFrame {
 	private JTextField fieldApellidos;
 	private JTextField fieldEdad;
 	private JTextField fieldCorreo;
-	private JTextField fieldTipoId;
 	private JTextField fieldNumId;
 	private JPasswordField fieldContrasena;
 	private JPasswordField fieldConfirmContra;
-	private JTextField rol;
+
+    private JComboBox<TipoIdentificacion> comboIdentificacion; 
+    private JComboBox<Rol> comboRoles;                         
+    private JCheckBox checkEstado;
+
+    private UsuariosDAO usuarioDAO;
+    private TipoIdentificacionDAO tipoIdentificacionDAO;
+    private RolDAO rolDAO;                             
 
 	/**
 	 * Launch the application.
@@ -153,6 +182,7 @@ public class intefaceSingin extends JFrame {
 		btnRegistro.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnRegistro.setBackground(new Color(255, 128, 0));
 		btnRegistro.setBounds(425, 624, 180, 37);
+		btnRegistro.addActionListener(e -> registroUsuario()); // Asignar ActionListener
 		contentPaneRegister.add(btnRegistro);
 		
 		JButton btnIrInicio = new JButton("Ir Inicio Sesion");
@@ -170,22 +200,10 @@ public class intefaceSingin extends JFrame {
 		labelIdentificacion.setBounds(242, 321, 188, 27);
 		contentPaneRegister.add(labelIdentificacion);
 		
-		// Crear arreglo con tipos de identificación
-		String[] tiposIdentificacion = {
-		    "Seleccione tipo ID...",
-		    "Cédula de Ciudadanía",
-		    "Tarjeta de Identidad",
-		    "Cédula de Extranjería",
-		    "Pasaporte",
-		    "NIT",
-		    "Registro Civil",
-		    "Permiso Especial de Permanencia (PEP)",
-		    "Documento Nacional de Identidad (DNI)"
-		};
-
-		JComboBox<String> comboIdentificacion = new JComboBox<>(tiposIdentificacion);
+		// JComboBox para Tipo de Identificación
+		comboIdentificacion = new JComboBox<>(); // ¡Sin elementos iniciales!
 		comboIdentificacion.setBackground(new Color(255, 255, 255));
-		comboIdentificacion.setBounds(242, 368, 239, 37); // Ajusta según tu layout
+		comboIdentificacion.setBounds(242, 368, 239, 37);
 		comboIdentificacion.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		comboIdentificacion.setBorder(new MatteBorder(0, 0, 2, 0, new Color(255, 102, 0)));
 		contentPaneRegister.add(comboIdentificacion);
@@ -266,26 +284,19 @@ public class intefaceSingin extends JFrame {
 		labelRol.setBounds(546, 432, 151, 22);
 		contentPaneRegister.add(labelRol);
 		
-		// Crear arreglo con tipos de identificación
-		String[] roles = {
-		    "Seleccione un rol...",
-		    "Administrador",
-		    "Cliente",
-		    "Proveedor"
-		};
-
-		JComboBox<String> comboRoles = new JComboBox<>(roles);
+		// JComboBox para Roles
+		comboRoles = new JComboBox<>(); // ¡Sin elementos iniciales!
 		comboRoles.setBackground(new Color(255, 255, 255));
-		comboRoles.setBounds(546, 462, 239, 37); // Ajusta según tu layout
+		comboRoles.setBounds(546, 462, 239, 37);
 		comboRoles.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		comboRoles.setBorder(new MatteBorder(0, 0, 2, 0, new Color(255, 102, 0)));
 		comboRoles.setBorder(new MatteBorder(0, 0, 2, 0, new Color(255, 102, 0)));
 		contentPaneRegister.add(comboRoles);
 		
-		JCheckBox checkEstado = new JCheckBox("Usuario Activo");
+		checkEstado = new JCheckBox("Usuario Activo"); // Asignar al atributo de clase
 		checkEstado.setBackground(new Color(255, 255, 255));
 		checkEstado.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		checkEstado.setBounds(543, 534, 228, 43);
+		checkEstado.setSelected(true); // Por defecto activo
 		contentPaneRegister.add(checkEstado);
 		
 		JLabel labelInstagram = new JLabel("");
@@ -311,12 +322,141 @@ public class intefaceSingin extends JFrame {
 		funciones.irNavegador(labelGithub, "https://github.com/Valerieee01");
 		funciones.cargarImagenEnLabel(labelGithub, "/img_login/git.png", 30, 30);
 		contentPaneRegister.add(labelGithub);
-		
-		
-		
-		
 
+        // Inicializar DAOs y poblar ComboBoxes
+        usuarioDAO = new UsuariosDAO();
+        tipoIdentificacionDAO = new TipoIdentificacionDAO();
+        rolDAO = new RolDAO();
+        
+        cargarComboBoxes(); // Llama al nuevo método para poblar los ComboBoxes
 	}
 	
-	
+    // --- Nuevo método para cargar los ComboBoxes ---
+    private void cargarComboBoxes() {
+        try (Connection conn = ConnectionADMIN.getConnectionADMIN()) {
+            // Cargar Tipos de Identificación
+            List<TipoIdentificacion> tiposIdentificacion = tipoIdentificacionDAO.obtenerTodosTiposIdentificacion(conn);
+            comboIdentificacion.removeAllItems(); // Limpiar items existentes
+            comboIdentificacion.addItem(null); // Añadir opción por defecto "Seleccione tipo ID..."
+            for (TipoIdentificacion tipo : tiposIdentificacion) {
+                comboIdentificacion.addItem(tipo); // toString() de TipoIdentificacion mostrará el nombre
+            }
+
+            // Cargar Roles
+            List<Rol> roles = rolDAO.obtenerTodosRoles(conn);
+            comboRoles.removeAllItems(); // Limpiar items existentes
+            comboRoles.addItem(null); // Añadir opción por defecto "Seleccione un rol..."
+            for (Rol rol : roles) {
+                comboRoles.addItem(rol); // toString() de Rol mostrará el nombre
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar datos de tipo de identificación o roles: " + e.getMessage(), "Error de Carga", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+
+	public void registroUsuario() {
+	    String nombres = fieldNombre.getText().trim();
+	    String apellidos = fieldApellidos.getText().trim();
+	    
+	    // Obtener el objeto TipoIdentificacion seleccionado directamente
+	    TipoIdentificacion tipoIdentificacionSeleccionado = (TipoIdentificacion) comboIdentificacion.getSelectedItem();
+	    
+	    String numeroIdentificacion = fieldNumId.getText().trim();
+	    String edadStr = fieldEdad.getText().trim();
+	    String correo = fieldCorreo.getText().trim();
+	    String contrasena = new String(fieldContrasena.getPassword()).trim();
+	    String confirmContrasena = new String(fieldConfirmContra.getPassword()).trim();
+	    
+	    // Obtener el objeto Rol seleccionado directamente
+	    Rol rolSeleccionado = (Rol) comboRoles.getSelectedItem();
+	    
+	    Estado estado = checkEstado.isSelected() ? Estado.activo : Estado.inactivo;
+
+	    // Validaciones
+	    if (nombres.isEmpty() || apellidos.isEmpty() || numeroIdentificacion.isEmpty() ||
+	        edadStr.isEmpty() || correo.isEmpty() || contrasena.isEmpty() ||
+	        confirmContrasena.isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+	    
+	    // Validar que se haya seleccionado un ítem real de los JComboBox
+	    if (tipoIdentificacionSeleccionado == null) {
+	        JOptionPane.showMessageDialog(this, "Por favor, seleccione un tipo de identificación.", "Validación", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+	    if (rolSeleccionado == null) {
+	        JOptionPane.showMessageDialog(this, "Por favor, seleccione un rol.", "Validación", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+
+	    if (!correo.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+	        JOptionPane.showMessageDialog(this, "Ingrese un correo electrónico válido.", "Formato Inválido", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+
+	    if (!contrasena.equals(confirmContrasena)) {
+	        JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden.", "Error de Contraseña", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+
+	    int edad;
+	    try {
+	        edad = Integer.parseInt(edadStr);
+	    } catch (NumberFormatException ex) {
+	        JOptionPane.showMessageDialog(this, "La edad debe ser un número válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+	        return;
+	    }
+
+        // Obtener los IDs de los objetos seleccionados
+        int idTipoIdentificacion = tipoIdentificacionSeleccionado.getIdTipoIdentificacion();
+        int idRol = rolSeleccionado.getIdRol();
+
+        // ¡ATENCIÓN: HASH DE CONTRASEÑA!
+        // String contrasenaHasheada = BCrypt.hashpw(contrasena, BCrypt.gensalt());
+        String contrasenaAEnviar = contrasena;
+
+	    Usuario nuevoUsuario = new Usuario(nombres, apellidos, idTipoIdentificacion,
+	                                       numeroIdentificacion, edad, correo, contrasenaAEnviar, idRol);
+	    nuevoUsuario.setEstado(estado);
+
+	    try (Connection conn = ConnectionADMIN.getConnectionADMIN()) {
+	        int idGenerado = usuarioDAO.agregarUsuario(nuevoUsuario, conn);
+
+	        if (idGenerado != -1) {
+	            JOptionPane.showMessageDialog(this, "Usuario registrado exitosamente. ID: " + idGenerado, "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
+	            limpiarCampos();
+	            conectarFrames.AbrirFrameLogin(this);
+	        } else {
+	            JOptionPane.showMessageDialog(this, "No se pudo registrar el usuario.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+	        }
+	    } catch (SQLException ex) {
+            if (ex.getMessage().contains("Duplicate entry") && ex.getMessage().contains("for key 'correo'")) {
+                JOptionPane.showMessageDialog(this, "El correo electrónico ya está registrado.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+            } else if (ex.getMessage().contains("Duplicate entry") && ex.getMessage().contains("for key 'numero_identificacion'")) {
+                JOptionPane.showMessageDialog(this, "El número de identificación ya está registrado.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+            } else if (ex.getMessage().contains("FOREIGN KEY (`id_tipo_identificacion`)") || ex.getMessage().contains("FOREIGN KEY (`id_rol`)")) {
+                JOptionPane.showMessageDialog(this, "Error: El tipo de identificación o el rol seleccionado no son válidos en la base de datos.", "Error de Clave Foránea", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al registrar el usuario en la base de datos: " + ex.getMessage(), "Error SQL", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+	    }
+	}
+
+    private void limpiarCampos() {
+        fieldNombre.setText("");
+        fieldApellidos.setText("");
+        fieldEdad.setText("");
+        fieldCorreo.setText("");
+        comboIdentificacion.setSelectedIndex(0);
+        fieldNumId.setText("");
+        fieldContrasena.setText("");
+        fieldConfirmContra.setText("");
+        comboRoles.setSelectedIndex(0);
+        checkEstado.setSelected(true);
+    }
 }

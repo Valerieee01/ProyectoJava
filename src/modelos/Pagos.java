@@ -1,49 +1,42 @@
 package modelos;
 
-import java.math.BigDecimal; // Importa BigDecimal para manejar valores monetarios con precisión.
-import java.sql.Date;       // Importa la clase Date para manejar tipos de datos de fecha de SQL.
-import java.sql.Timestamp;  // Importa la clase Timestamp para manejar tipos de datos de fecha y hora de SQL.
-
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp; // Mantén este si planeas usar fecha_registro/fecha_actualizacion en el futuro
 
 /**
  * Clase de modelo (POJO - Plain Old Java Object) que representa la tabla 'pagos'
  * en la base de datos.
- * Esta clase se utiliza para mapear las columnas de la tabla a propiedades de Java,
- * facilitando el manejo de los datos de los pagos en la aplicación.
  */
-
-
 public class Pagos {
-	 // Atributos privados que corresponden a las columnas de la tabla 'pagos'.
-    // Cada atributo tiene un tipo de dato Java que se alinea con el tipo de dato SQL.
-	private int idPago; //Corresponde al 'id_pago' (INT AUTO_INCREMENT PRIMARY KEY)
-	private int idCliente; // Corresponde al 'id_cliente' (INT NOT NULL)
-	private int idMantenimiento; // Corresponde al 'id_mantenimientos' (INT NOT NULL)
-	private String detalle; // Correspondiente al 'detalle' (TEXT)
-	private BigDecimal valorTrabajo; // Correspondiente al 'valor_trabajo' (DECIMAL(10,2) NOT NULL)
-	private BigDecimal valorPagado; // Correspondiente al 'valor_pago' (ENUM('vencido', 'pagado', 'mora') NOT NULL DEFAULT 'mora')
-	private BigDecimal valorMora;	 // Correspondiente al 'valor_trabajo' (DECIMAL(10,2) NOT NULL) calculado por la db
-	private EstadoPago estadoPago;        // Corresponde a 'estado_pago' (ENUM)
-    private Date fechaFacturacion;        // Corresponde a 'fecha_facturacion' (DATE)
-    private int diasPlazo;                // Corresponde a 'dias_plazo' (INT)
-    private Date fechaVencimiento;        // Corresponde a 'fecha_vencimiento' (DATE)
-	
-	
+    private int idPago;
+    private int idCliente;
+    private int idMantenimiento;
+    private String detalle;
+    private BigDecimal valorTrabajo;
+    private BigDecimal valorPagado;
+    private BigDecimal valorMora; // Corresponde a 'valor_mora' (DECIMAL(10,2) NOT NULL) calculado por la db
+    private EstadoPago estadoPago;
+    private Date fechaFacturacion;
+    private int diasPlazo;
+    private Date fechaVencimiento;
+    // Si deseas mapear las columnas de tiempo de la BD, añádelas:
+    // private Timestamp fechaRegistro;
+    // private Timestamp fechaActualizacion;
+
     /**
      * Enumeración para el campo 'estado_pago'.
-     * Mapea los valores ENUM de la base de datos ('vencido', 'pagado', 'mora') a tipos seguros en Java.
      */
-	public enum EstadoPago {
-		vencido,
-		pagado,
-		mora
-	}
-	
+    public enum EstadoPago {
+        vencido,
+        pagado,
+        mora
+    }
 
     /**
      * Constructor para crear un nuevo objeto Pago para inserción en la base de datos.
      * Este constructor excluye los campos que son generados automáticamente por la base de datos,
-     * como 'id_pago', 'valor_mora', 'fecha_registro' y 'fecha_actualizacion'.
+     * como 'id_pago', 'valor_mora', 'fecha_vencimiento', 'fecha_registro' y 'fecha_actualizacion'.
      *
      * @param idCliente El ID del cliente asociado a este pago.
      * @param idMantenimiento El ID del mantenimiento asociado a este pago.
@@ -53,9 +46,7 @@ public class Pagos {
      * @param estadoPago El estado actual del pago (vencido, pagado, mora).
      * @param fechaFacturacion La fecha en que se facturó el pago.
      * @param diasPlazo La cantidad de días de plazo para el pago.
-     * @param fechaVencimiento La fecha en que vence el pago.
      */
-	
     public Pagos(int idCliente, int idMantenimiento, String detalle, BigDecimal valorTrabajo, BigDecimal valorPagado, EstadoPago estadoPago, Date fechaFacturacion, int diasPlazo) {
         this.idCliente = idCliente;
         this.idMantenimiento = idMantenimiento;
@@ -65,11 +56,25 @@ public class Pagos {
         this.estadoPago = estadoPago;
         this.fechaFacturacion = fechaFacturacion;
         this.diasPlazo = diasPlazo;
+        // Los campos idPago, valorMora, fechaVencimiento, fechaRegistro y fechaActualizacion
+        // no se inicializan aquí porque se espera que la base de datos los gestione.
     }
 
     /**
      * Constructor para RECONSTRUIR un objeto Pago DESDE la base de datos.
      * INCLUYE todos los campos, incluso los generados o auto-incrementales.
+     *
+     * @param idPago El ID único del pago.
+     * @param idCliente El ID del cliente asociado al pago.
+     * @param idMantenimiento El ID del mantenimiento asociado al pago.
+     * @param detalle Descripción detallada del pago.
+     * @param valorTrabajo El valor total del trabajo realizado.
+     * @param valorPagado El valor que ya ha sido pagado.
+     * @param valorMora El valor calculado de la mora (generado por la DB).
+     * @param estadoPago El estado actual del pago.
+     * @param fechaFacturacion La fecha de facturación.
+     * @param diasPlazo La cantidad de días de plazo.
+     * @param fechaVencimiento La fecha de vencimiento (generada por la DB).
      */
     public Pagos(int idPago, int idCliente, int idMantenimiento, String detalle, BigDecimal valorTrabajo, BigDecimal valorPagado, BigDecimal valorMora, EstadoPago estadoPago, Date fechaFacturacion, int diasPlazo, Date fechaVencimiento) {
         this.idPago = idPago;
@@ -78,198 +83,63 @@ public class Pagos {
         this.detalle = detalle;
         this.valorTrabajo = valorTrabajo;
         this.valorPagado = valorPagado;
-        this.valorMora = valorMora; // Se inicializa desde la lectura de la DB
+        this.valorMora = valorMora;
         this.estadoPago = estadoPago;
         this.fechaFacturacion = fechaFacturacion;
         this.diasPlazo = diasPlazo;
         this.fechaVencimiento = fechaVencimiento;
+        // Si incluyes Timestamp, también deberían ir aquí:
+        // this.fechaRegistro = fechaRegistro;
+        // this.fechaActualizacion = fechaActualizacion;
     }
-    
+
+    /**
+     * Constructor vacío para cuando se usan setters (útil para mapeo de ResultSet).
+     */
     public Pagos() {
-    	
     }
 
     // --- Getters y Setters ---
-    // Métodos públicos para acceder (get) y modificar (set) los atributos privados de la clase.
-    // Esto asegura el encapsulamiento de los datos del objeto.
 
-    /**
-     * Obtiene el ID único del pago.
-     * @return El ID del pago.
-     */
-    public int getIdPago() {
-        return idPago;
-    }
+    public int getIdPago() { return idPago; }
+    public void setIdPago(int idPago) { this.idPago = idPago; }
 
-    /**
-     * Establece el ID único del pago.
-     * @param idPago El ID del pago a establecer.
-     */
-    public void setIdPago(int idPago) {
-        this.idPago = idPago;
-    }
+    public int getIdCliente() { return idCliente; }
+    public void setIdCliente(int idCliente) { this.idCliente = idCliente; }
 
-    /**
-     * Obtiene el ID del cliente asociado al pago.
-     * @return El ID del cliente.
-     */
-    public int getIdCliente() {
-        return idCliente;
-    }
+    public int getIdMantenimiento() { return idMantenimiento; }
+    public void setIdMantenimiento(int idMantenimiento) { this.idMantenimiento = idMantenimiento; }
 
-    /**
-     * Establece el ID del cliente asociado al pago.
-     * @param idCliente El ID del cliente a establecer.
-     */
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
-    }
+    public String getDetalle() { return detalle; }
+    public void setDetalle(String detalle) { this.detalle = detalle; }
 
-    /**
-     * Obtiene el ID del mantenimiento asociado al pago.
-     * @return El ID del mantenimiento.
-     */
-    public int getIdMantenimiento() {
-        return idMantenimiento;
-    }
+    public BigDecimal getValorTrabajo() { return valorTrabajo; }
+    public void setValorTrabajo(BigDecimal valorTrabajo) { this.valorTrabajo = valorTrabajo; }
 
-    /**
-     * Establece el ID del mantenimiento asociado al pago.
-     * @param idMantenimiento El ID del mantenimiento a establecer.
-     */
-    public void setIdMantenimiento(int idMantenimiento) {
-        this.idMantenimiento = idMantenimiento;
-    }
+    public BigDecimal getValorPagado() { return valorPagado; }
+    public void setValorPagado(BigDecimal valorPagado) { this.valorPagado = valorPagado; }
 
-    /**
-     * Obtiene el detalle o descripción del pago.
-     * @return El detalle del pago.
-     */
-    public String getDetalle() {
-        return detalle;
-    }
-
-    /**
-     * Establece el detalle o descripción del pago.
-     * @param detalle El detalle del pago a establecer.
-     */
-    public void setDetalle(String detalle) {
-        this.detalle = detalle;
-    }
-
-    /**
-     * Obtiene el valor total del trabajo realizado.
-     * @return El valor del trabajo.
-     */
-    public BigDecimal getValorTrabajo() {
-        return valorTrabajo;
-    }
-
-    /**
-     * Establece el valor total del trabajo realizado.
-     * @param valorTrabajo El valor del trabajo a establecer.
-     */
-    public void setValorTrabajo(BigDecimal valorTrabajo) {
-        this.valorTrabajo = valorTrabajo;
-    }
-
-    /**
-     * Obtiene el valor que ya ha sido pagado.
-     * @return El valor pagado.
-     */
-    public BigDecimal getValorPagado() {
-        return valorPagado;
-    }
-
-    /**
-     * Establece el valor que ya ha sido pagado.
-     * @param valorPagado El valor pagado a establecer.
-     */
-    public void setValorPagado(BigDecimal valorPagado) {
-        this.valorPagado = valorPagado;
-    }
-
-    /**
-     * Obtiene el valor que falta por pagar.
-     * @return valorMora El valor no pagado a establecer.
-     */
     public BigDecimal getValorMora() { return valorMora; }
-    
-    /**
-     * Establece el valor que falta por pagar.
-     * @param valorPagado El valor pagado a establecer.
-     */
     public void setValorMora(BigDecimal valorMora) { this.valorMora = valorMora; }
-    /**
-     * Obtiene el estado actual del pago (vencido, pagado, mora).
-     * @return El estado del pago.
-     */
-    public EstadoPago getEstadoPago() {
-        return estadoPago;
-    }
 
-    /**
-     * Establece el estado actual del pago.
-     * @param estadoPago El estado del pago a establecer.
-     */
-    public void setEstadoPago(EstadoPago estadoPago) {
-        this.estadoPago = estadoPago;
-    }
+    public EstadoPago getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
 
-    /**
-     * Obtiene la fecha en que se facturó el pago.
-     * @return La fecha de facturación.
-     */
-    public Date getFechaFacturacion() {
-        return fechaFacturacion;
-    }
+    public Date getFechaFacturacion() { return fechaFacturacion; }
+    public void setFechaFacturacion(Date fechaFacturacion) { this.fechaFacturacion = fechaFacturacion; }
 
-    /**
-     * Establece la fecha en que se facturó el pago.
-     * @param fechaFacturacion La fecha de facturación a establecer.
-     */
-    public void setFechaFacturacion(Date fechaFacturacion) {
-        this.fechaFacturacion = fechaFacturacion;
-    }
+    public int getDiasPlazo() { return diasPlazo; }
+    public void setDiasPlazo(int diasPlazo) { this.diasPlazo = diasPlazo; }
 
-    /**
-     * Obtiene la cantidad de días de plazo para el pago.
-     * @return Los días de plazo.
-     */
-    public int getDiasPlazo() {
-        return diasPlazo;
-    }
+    public Date getFechaVencimiento() { return fechaVencimiento; }
+    public void setFechaVencimiento(Date fechaVencimiento) { this.fechaVencimiento = fechaVencimiento; }
 
-    /**
-     * Establece la cantidad de días de plazo para el pago.
-     * @param diasPlazo Los días de plazo a establecer.
-     */
-    public void setDiasPlazo(int diasPlazo) {
-        this.diasPlazo = diasPlazo;
-    }
+    // Si incluyes Timestamp, añade sus getters/setters:
+    // public Timestamp getFechaRegistro() { return fechaRegistro; }
+    // public void setFechaRegistro(Timestamp fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    // public Timestamp getFechaActualizacion() { return fechaActualizacion; }
+    // public void setFechaActualizacion(Timestamp fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
 
-    /**
-     * Obtiene la fecha en que vence el pago.
-     * @return La fecha de vencimiento.
-     */
-    public Date getFechaVencimiento() {
-        return fechaVencimiento;
-    }
-
-    /**
-     * Establece la fecha en que vence el pago.
-     * @param fechaVencimiento La fecha de vencimiento a establecer.
-     */
-    public void setFechaVencimiento(Date fechaVencimiento) {
-        this.fechaVencimiento = fechaVencimiento;
-    }
-
-    
-    /**
-     * Sobreescribe el método toString() para proporcionar una representación
-     * de cadena legible del objeto Pago. Es útil para la depuración y el logging.
-     * @return Una cadena que representa el estado del objeto Pago.
-     */
     @Override
     public String toString() {
         return "Pago{" +
@@ -279,10 +149,14 @@ public class Pagos {
                ", detalle='" + detalle + '\'' +
                ", valorTrabajo=" + valorTrabajo +
                ", valorPagado=" + valorPagado +
+               ", valorMora=" + valorMora + // Incluir en toString
                ", estadoPago=" + estadoPago +
                ", fechaFacturacion=" + fechaFacturacion +
                ", diasPlazo=" + diasPlazo +
-               ", fechaVencimiento=" + fechaVencimiento +
+               ", fechaVencimiento=" + fechaVencimiento + // Incluir en toString
+               // Si incluyes Timestamp, añade aquí:
+               // ", fechaRegistro=" + fechaRegistro +
+               // ", fechaActualizacion=" + fechaActualizacion +
                '}';
     }
 }

@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import funciones.funciones;
+import menuInicialAdministrador.paneCuentaAdmin;
+import modelos.Usuario;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -19,12 +21,14 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class contenedorInicio extends JFrame {
+public class contenedorInicioEmp extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
     private Color naranjaPastel = new Color(0xFF, 0xE5, 0xCC);
     private CardLayout cardLayout;
+    private static Usuario usuarioLogueado;
+
 
 	/**
 	 * Launch the application.
@@ -33,7 +37,7 @@ public class contenedorInicio extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					contenedorInicio frame = new contenedorInicio();
+					contenedorInicioEmp frame = new contenedorInicioEmp(usuarioLogueado);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -45,7 +49,10 @@ public class contenedorInicio extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public contenedorInicio() {
+	public contenedorInicioEmp(Usuario usuario) {
+		this.usuarioLogueado = usuario; 
+
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1035, 856);
 		contentPane = new JPanel();
@@ -73,20 +80,17 @@ public class contenedorInicio extends JFrame {
 		
 		//Intancviamos los paneles que se desean agregar al contenedor
 		paneInicioEmpleado paneInicioEmpleado = new paneInicioEmpleado(cardLayout, ContenedorCardLayout);
-		panelMantenimientos paneMantenimientos = new panelMantenimientos();
-		panelReportes paneTrabajos = new panelReportes();
-		paneSaldos paneSaldos = new paneSaldos();
-		
-		
+		panelMantenimientosEmp paneMantenimientos = new panelMantenimientosEmp();
+		panelReportesEmp paneTrabajos = new panelReportesEmp();
+		paneSaldosEmp paneSaldos = new paneSaldosEmp();
+		paneCuentaEmp paneCuentaEmp = new paneCuentaEmp(usuario);
 		
 		// agregamos los paneles al contenedor
 		ContenedorCardLayout.add(paneMantenimientos, "paneMantenimientos");
 		ContenedorCardLayout.add(paneTrabajos, "paneTrabajos");
 		ContenedorCardLayout.add(paneInicioEmpleado, "paneInicioEmpleado");
 		ContenedorCardLayout.add(paneSaldos, "paneSaldos");
-
-		
-
+		ContenedorCardLayout.add(paneCuentaEmp, "paneCuentaEmp");
 		
 		//creamos el menu lateral 
 		JPanel barraLateralMenu = new JPanel();
@@ -99,17 +103,17 @@ public class contenedorInicio extends JFrame {
 		JLabel labelImgUser = new JLabel("");
 		labelImgUser.setHorizontalAlignment(SwingConstants.CENTER);
 		labelImgUser.setBounds(62, 50, 75, 87);
-		funciones.cargarImagenEnLabel(labelImgUser, "/menuInicialCliente/img_cliente/user.png", 75, 87); // Llamamos a la función de agregar imagenes al label
+		funciones.cargarImagenEnLabel(labelImgUser, "/menuInicialCliente/img_cliente/user.png", 75, 87); 
 		barraLateralMenu.add(labelImgUser);
 		
 		//label para ir al inicio
 		JLabel irInicio = new JLabel("Inicio", SwingConstants.CENTER);
 		JLabel iconoLabelInicio = new JLabel();
-		funciones.cargarImagenEnLabel(iconoLabelInicio, "/menuInicialCliente/img_cliente/home.png", 20, 20);// carga la imagen 
-		irInicio.setIcon(iconoLabelInicio.getIcon()); // se le asigna un icono 
+		funciones.cargarImagenEnLabel(iconoLabelInicio, "/menuInicialCliente/img_cliente/home.png", 20, 20);
+		irInicio.setIcon(iconoLabelInicio.getIcon()); 
 		irInicio.setHorizontalTextPosition(SwingConstants.RIGHT);
-		irInicio.setOpaque(true); // NECESARIO
-		irInicio.setBackground(new Color(255, 255, 255)); // color base
+		irInicio.setOpaque(true); 
+		irInicio.setBackground(new Color(255, 255, 255)); 
 		irInicio.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -117,11 +121,11 @@ public class contenedorInicio extends JFrame {
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
-				irInicio.setBackground(new Color(255, 180, 100)); // color hover más claro
+				irInicio.setBackground(new Color(255, 180, 100));
 		    }
 		    @Override
 		    public void mouseExited(MouseEvent e) {
-		    	irInicio.setBackground(new Color(255, 255, 255)); // vuelve al base
+		    	irInicio.setBackground(new Color(255, 255, 255)); 
 		    }
 		});
 		irInicio.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
@@ -138,8 +142,8 @@ public class contenedorInicio extends JFrame {
 		irMnatenimientos.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irMnatenimientos.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irMnatenimientos.setHorizontalAlignment(SwingConstants.CENTER);
-		irMnatenimientos.setOpaque(true); // NECESARIO
-		irMnatenimientos.setBackground(new Color(255, 255, 255)); // color base
+		irMnatenimientos.setOpaque(true); 
+		irMnatenimientos.setBackground(new Color(255, 255, 255)); 
 		irMnatenimientos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -147,11 +151,11 @@ public class contenedorInicio extends JFrame {
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
-				irMnatenimientos.setBackground(new Color(255, 180, 100)); // color hover más claro
+				irMnatenimientos.setBackground(new Color(255, 180, 100)); 
 		    }
 		    @Override
 		    public void mouseExited(MouseEvent e) {
-				irMnatenimientos.setBackground(new Color(255, 255, 255)); // vuelve al base
+				irMnatenimientos.setBackground(new Color(255, 255, 255));
 		    }
 		});
 		irMnatenimientos.setBounds(0, 333, 199, 51);
@@ -165,8 +169,8 @@ public class contenedorInicio extends JFrame {
 		irTrabajos.setHorizontalTextPosition(SwingConstants.RIGHT);
 		irTrabajos.setFont(new Font("Franklin Gothic Book", Font.PLAIN, 15));
 		irTrabajos.setHorizontalAlignment(SwingConstants.CENTER);
-		irTrabajos.setOpaque(true); // NECESARIO
-		irTrabajos.setBackground(new Color(255, 255, 255)); // color base
+		irTrabajos.setOpaque(true);
+		irTrabajos.setBackground(new Color(255, 255, 255)); 
 		irTrabajos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -175,11 +179,11 @@ public class contenedorInicio extends JFrame {
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
-				irTrabajos.setBackground(new Color(255, 180, 100)); // color hover más claro
+				irTrabajos.setBackground(new Color(255, 180, 100)); 
 		    }
 		    @Override
 		    public void mouseExited(MouseEvent e) {
-		    	irTrabajos.setBackground(new Color(255, 255, 255)); // vuelve al base
+		    	irTrabajos.setBackground(new Color(255, 255, 255));
 		    }
 		});
 		irTrabajos.setBounds(0, 410, 199, 51);
@@ -197,6 +201,15 @@ public class contenedorInicio extends JFrame {
 		labelApellidoUser.setBounds(0, 178, 199, 41);
 		barraLateralMenu.add(labelApellidoUser);
 		
+		if (usuarioLogueado != null) {
+			labelNombreUser.setText(usuarioLogueado.getNombres());
+			labelApellidoUser.setText(usuarioLogueado.getApellidos());
+		} else {
+			labelNombreUser.setText("Invitado");
+			labelApellidoUser.setText("Admin");
+		}
+		
+		
 		JLabel irCuenta = new JLabel("Mi cuenta");
 		irCuenta.setOpaque(true);
 		irCuenta.setHorizontalAlignment(SwingConstants.CENTER);
@@ -205,14 +218,16 @@ public class contenedorInicio extends JFrame {
 		irCuenta.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+			    cardLayout.show(ContenedorCardLayout, "paneCuentaEmp");
+
 			}
 			@Override
 		    public void mouseEntered(MouseEvent e) {
-				irCuenta.setBackground(new Color(255, 180, 100)); // color hover más claro
+				irCuenta.setBackground(new Color(255, 180, 100)); 
 		    }
 		    @Override
 		    public void mouseExited(MouseEvent e) {
-		    	irCuenta.setBackground(new Color(255, 255, 255)); // vuelve al base
+		    	irCuenta.setBackground(new Color(255, 255, 255)); 
 		    }
 		});
 		irCuenta.setBackground(Color.WHITE);

@@ -1,7 +1,7 @@
 package modelos;
 
 
-import java.time.LocalDateTime; // Para manejar las fechas y horas
+import java.time.LocalDateTime; 
 
 /**
  * Clase modelo para la tabla 'usuarios'.
@@ -22,6 +22,9 @@ public class Usuario {
     private int idUsuario;
     private String nombres;
     private String apellidos;
+    
+    
+    
     private int IdTipoIdentificacion;
     private String numeroIdentificacion;
     private int edad;
@@ -29,8 +32,6 @@ public class Usuario {
     private String contrasena; // Considerar que esta contrasena deberia ser un hash, no texto plano.
     private int idRol;
     private Estado estado;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
 
     // --- Constructor(es) ---
 
@@ -65,8 +66,7 @@ public class Usuario {
         this.correo = correo;
         this.contrasena = contrasena;
         this.idRol = idRol;
-        this.estado = Estado.activo; // Por defecto al crear un nuevo usuario
-        // fechaCreacion y fechaActualizacion se establecerán por la BD
+        this.estado = Estado.activo; 
     }
 
     // --- Getters y Setters ---
@@ -164,7 +164,7 @@ public class Usuario {
                ", numeroIdentificacion='" + numeroIdentificacion + '\'' +
                ", edad=" + edad +
                ", correo='" + correo + '\'' +
-               ", contrasena='[PROTECTED]'" + // No mostrar la contraseña real por seguridad
+               ", contrasena='[PROTECTED]'" + 
                ", idRol=" + idRol +
                ", estado=" + estado +
                '}';
